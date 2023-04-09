@@ -10,6 +10,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.lang.Nullable;
 
 import java.time.Instant;
+import java.util.List;
 
 @Entity
 @Table(name = "app_user")
@@ -39,6 +40,9 @@ public class User extends EntityWithId {
     private String passwordHash;
     @NotNull(message = "Enter user role")
     private UserRole role;
+    @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    private List<Publication> publications;
     @CreatedDate
     private Instant created;
 }
