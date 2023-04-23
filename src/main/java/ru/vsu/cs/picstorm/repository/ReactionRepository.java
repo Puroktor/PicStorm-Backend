@@ -8,4 +8,5 @@ import ru.vsu.cs.picstorm.entity.User;
 import java.util.Optional;
 
 public interface ReactionRepository extends JpaRepository<Reaction, Long> {
+    Optional<Reaction> findByPublicationAndUser(Publication publication, User user);
 }

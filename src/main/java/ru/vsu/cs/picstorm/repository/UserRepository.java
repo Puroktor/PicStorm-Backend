@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import ru.vsu.cs.picstorm.entity.User;
 
 import java.util.Optional;
-
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByNickname(String name);
     @Query(value = "SELECT u FROM User u WHERE lower(u.nickname) LIKE lower(concat('%', ?1,'%')) ORDER BY u.nickname")

@@ -10,6 +10,7 @@ import org.springframework.data.util.Streamable;
 import org.springframework.lang.Nullable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import ru.vsu.cs.picstorm.dto.request.UploadPictureDto;
 import ru.vsu.cs.picstorm.dto.response.*;
 import ru.vsu.cs.picstorm.entity.*;
 import ru.vsu.cs.picstorm.repository.PictureRepository;
@@ -135,6 +136,30 @@ public class UserService {
         long subscribersCount = subscriptionRepository.countByTarget(user);
         profileDto.setSubscribersCount(subscribersCount);
         return profileDto;
+    }
+
+    public void uploadAvatar(String userNickname, UploadPictureDto uploadPictureDto) {
+        User user = userRepository.findByNickname(userNickname)
+                .orElseThrow(() -> new NoSuchElementException("Пользователь не существует"));
+
+        Picture newAvatar = new Picture();
+        newAvatar.setPictureType(uploadPictureDto.getPictureType());
+        newAvatar = pictureRepository.save(newAvatar);
+
+        String avatarName = pictureStorageService.getPublicationName(newAvatar);
+        try {
+            pictureStorageService.savePicture(avatarName, uploadPictureDto.getPicture());
+        } catch (Exception e) {
+            pictureRepository.delete(newAvatar);
+            throw new RuntimeException("Ошибка при сохранении аватара");
+        }
+
+        Picture oldAvatar = user.getAvatar();
+        if (oldAvatar!= null){
+            removeAvatar(oldAvatar);
+        }
+        user.setAvatar(newAvatar);
+        userRepository.save(user);
     }
 
     private void removeAvatar(Picture oldAvatar) {

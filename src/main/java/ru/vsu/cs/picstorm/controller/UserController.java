@@ -4,7 +4,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.vsu.cs.picstorm.dto.request.UploadPictureDto;
 import ru.vsu.cs.picstorm.dto.response.PageDto;
 import ru.vsu.cs.picstorm.dto.response.UserLineDto;
 import ru.vsu.cs.picstorm.dto.response.UserProfileDto;
@@ -28,6 +31,19 @@ import java.util.Optional;
 @SecurityRequirement(name = "JWT Authentication")
 public class UserController {
     private final UserService userService;
+
+    @Operation(summary = "Uploads new avatar")
+    @PostMapping("avatar")
+    @PreAuthorize("hasAuthority('UPLOAD_AUTHORITY')")
+    public ResponseEntity<Void> uploadAvatar(
+            @ModelAttribute @NotNull(message = "Предоставьте фото для загурзки") @Valid UploadPictureDto uploadPictureDto,
+            @Parameter(hidden = true) Authentication authentication) {
+        String userNickname = authentication.getName();
+        userService.uploadAvatar(userNickname, uploadPictureDto);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .build();
+    }
 
     @Operation(summary = "Finds users by part of nickname")
     @GetMapping("search")
