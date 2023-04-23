@@ -8,4 +8,5 @@ import ru.vsu.cs.picstorm.entity.User;
 import java.util.List;
 
 public interface PublicationRepository extends JpaRepository<Publication, Long>, JpaSpecificationExecutor<Publication> {
+    List<Publication> findAllByOwner(User owner);
 }
