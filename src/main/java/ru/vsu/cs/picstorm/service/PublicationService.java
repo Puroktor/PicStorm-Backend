@@ -1,19 +1,25 @@
 package ru.vsu.cs.picstorm.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import ru.vsu.cs.picstorm.dto.request.PublicationReactionDto;
-import ru.vsu.cs.picstorm.dto.request.UploadPictureDto;
+import ru.vsu.cs.picstorm.dto.request.*;
+import ru.vsu.cs.picstorm.dto.response.PageDto;
+import ru.vsu.cs.picstorm.dto.response.PublicationInfoDto;
 import ru.vsu.cs.picstorm.dto.response.ResponsePictureDto;
 import ru.vsu.cs.picstorm.entity.*;
 import ru.vsu.cs.picstorm.repository.PictureRepository;
 import ru.vsu.cs.picstorm.repository.PublicationRepository;
 import ru.vsu.cs.picstorm.repository.ReactionRepository;
 import ru.vsu.cs.picstorm.repository.UserRepository;
+import ru.vsu.cs.picstorm.repository.specification.PublicationFeedSpecification;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -52,6 +58,49 @@ public class PublicationService {
                 .reactions(new ArrayList<>())
                 .build();
         publicationRepository.save(publication);
+    }
+
+    public PageDto<PublicationInfoDto> getPublicationInfo(String viewingUserNickname, DateConstraint dateConstraint, SortConstraint sortConstraint,
+                                                          UserConstraint userConstraint, Long filterUserId, int index, int size) {
+        Optional<User> viewer = userRepository.findByNickname(viewingUserNickname);
+        if (viewer.isEmpty() && userConstraint.equals(UserConstraint.SUBSCRIPTIONS)) {
+            throw new AccessDeniedException("Вы не можете просматривать ленту подпсиок");
+        }
+        User filterUser = null;
+        if (filterUserId == null && userConstraint.equals(UserConstraint.SPECIFIED)) {
+            throw new IllegalArgumentException("Укажите пользователя, чью ленту просматриваете");
+        } else if (filterUserId != null) {
+            filterUser = userRepository.findById(filterUserId)
+                    .orElseThrow(() -> new NoSuchElementException("Пользователь не существует"));
+        }
+        PublicationFeedSpecification feedSpecification =
+                new PublicationFeedSpecification(dateConstraint, userConstraint, viewer.orElse(null), filterUser);
+        Pageable pageable = PageRequest.of(index, size, sortConstraint.toDataSort());
+        Page<Publication> publicationPage = publicationRepository.findAll(feedSpecification, pageable);
+        List<PublicationInfoDto> infoDtoList = publicationPage.stream()
+                .map(publication -> buildPublicationInfoDto(publication, viewer))
+                .toList();
+        return new PageDto<>(infoDtoList, index, size, publicationPage.isLast());
+    }
+
+    private PublicationInfoDto buildPublicationInfoDto(Publication publication, Optional<User> viewer){
+        PublicationInfoDto publicationInfo = new PublicationInfoDto();
+        publicationInfo.setPublicationId(publication.getId());
+        publicationInfo.setUploaded(publication.getCreated());
+        publicationInfo.setRating(publication.getRating());
+
+        User owner = publication.getOwner();
+        publicationInfo.setOwnerId(owner.getId());
+        publicationInfo.setOwnerNickname(owner.getNickname());
+
+        ResponsePictureDto avatarDto = userService.getUserAvatar(owner);
+        publicationInfo.setOwnerAvatar(avatarDto);
+
+        if (viewer.isPresent()) {
+            Optional<Reaction> reaction = reactionRepository.findByPublicationAndUser(publication, viewer.get());
+            publicationInfo.setUserReaction(reaction.map(Reaction::getType).orElse(null));
+        }
+        return publicationInfo;
     }
 
     public ResponsePictureDto getPublicationPicture(long publicationId) {
