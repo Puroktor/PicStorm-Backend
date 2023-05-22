@@ -37,11 +37,11 @@ public class UserRepositoryTests {
 
     @PostConstruct
     private void initMockData() {
-        user1 = new User(null, null, "aaaaa", "email1@email.com", "qwerty-hash", UserRole.ORDINARY, new ArrayList<>(), null);
-        user2 = new User(null, null, "ddda", "email2@email.com", "qwerty-hash", UserRole.SUPER_ADMIN, new ArrayList<>(), null);
+        user1 = new User(null, null, "zzzzz", "email1@email.com", "qwerty-hash", UserRole.ORDINARY, new ArrayList<>(), null);
+        user2 = new User(null, null, "dddz", "email2@email.com", "qwerty-hash", UserRole.SUPER_ADMIN, new ArrayList<>(), null);
         user3 = new User(null, null, "bbbb", "email3@email.com", "qwerty-hash", UserRole.BANNED, new ArrayList<>(), null);
         user4 = new User(null, null, "neme", "email4@email.com", "qwerty-hash", UserRole.ORDINARY, new ArrayList<>(), null);
-        user5 = new User(null, null, "ccaaccc", "email5@email.com", "qwerty-hash", UserRole.ADMIN, new ArrayList<>(), null);
+        user5 = new User(null, null, "cczzccc", "email5@email.com", "qwerty-hash", UserRole.ADMIN, new ArrayList<>(), null);
     }
 
     @BeforeEach
@@ -82,11 +82,11 @@ public class UserRepositoryTests {
 
     @Test
     public void findPageByNicknameWithMultipleUsers() {
-        Page<User> page = userRepository.findPageByNickname("a", PageRequest.of(0, 2));
+        Page<User> page = userRepository.findPageByNickname("z", PageRequest.of(0, 2));
 
         assertEquals(3, page.getTotalElements());
         assertEquals(2, page.getContent().size());
-        assertEquals(user1, page.getContent().get(0));
-        assertEquals(user5, page.getContent().get(1));
+        assertEquals(user5, page.getContent().get(0));
+        assertEquals(user2, page.getContent().get(1));
     }
 }

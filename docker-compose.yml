@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+
+  postgres:
+    image: "postgres:15.3-alpine"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=picstorm_db
+      - POSTGRES_USER=picstorm_db_user
+      - POSTGRES_PASSWORD=Ss0gfgz3c9vla9Hn6bXslysSOHFOai2w
+    networks:
+      - db-back
+
+  backend:
+    build: .
+    image: "goosepusher/picstorm"
+    ports:
+      - "80:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=production
+    depends_on:
+      - postgres
+    networks:
+      - db-back
+
+volumes:
+  db-data:
+
+networks:
+  db-back:

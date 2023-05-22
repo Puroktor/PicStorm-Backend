@@ -37,6 +37,10 @@ public class PublicationRepositoryTests {
     private User user1;
     private User user2;
     private Subscription subscription;
+    private Picture picture1;
+    private Picture picture2;
+    private Picture picture3;
+    private Picture picture4;
     private Publication publication1;
     private Publication publication2;
     private Publication publication3;
@@ -47,13 +51,12 @@ public class PublicationRepositoryTests {
     private void initMockData() {
         user1 = new User(null, null, "aaaaa", "email1@email.com", "hash", UserRole.ORDINARY, new ArrayList<>(), null);
         user2 = new User(null, null, "bbbb", "email2@email.com", "hash", UserRole.SUPER_ADMIN, new ArrayList<>(), null);
-
         subscription = new Subscription(null, user1, user2, null);
 
-        Picture picture1 = new Picture(null, PictureType.JPEG, null);
-        Picture picture2 = new Picture(null, PictureType.PNG, null);
-        Picture picture3 = new Picture(null, PictureType.JPEG, null);
-        Picture picture4 = new Picture(null, PictureType.PNG, null);
+        picture1 = new Picture(null, PictureType.JPEG, null);
+        picture2 = new Picture(null, PictureType.PNG, null);
+        picture3 = new Picture(null, PictureType.JPEG, null);
+        picture4 = new Picture(null, PictureType.PNG, null);
 
         publication1 = new Publication(null, user1, picture1, PublicationState.VISIBLE, 0L, new ArrayList<>(), null);
         publication2 = new Publication(null, user2, picture2, PublicationState.VISIBLE, 1L, new ArrayList<>(), null);
@@ -66,6 +69,11 @@ public class PublicationRepositoryTests {
         entityManager.persist(user1);
         entityManager.persist(user2);
         entityManager.persist(subscription);
+
+        entityManager.persist(picture1);
+        entityManager.persist(picture2);
+        entityManager.persist(picture3);
+        entityManager.persist(picture4);
 
         publication1 = entityManager.persist(publication1);
         publication2 = entityManager.persist(publication2);

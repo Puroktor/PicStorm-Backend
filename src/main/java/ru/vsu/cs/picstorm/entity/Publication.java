@@ -25,7 +25,7 @@ public class Publication extends EntityWithId {
     @OneToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "picture_id", nullable = false)
     private Picture picture;
-    @NotNull(message = "Enter publication type")
+    @NotNull(message = "Enter publication state")
     private PublicationState state;
     /**
      *  Calculated value, added due to performance reasons
