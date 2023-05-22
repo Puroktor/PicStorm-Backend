@@ -6,7 +6,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
 
@@ -22,6 +22,6 @@ public class Picture extends EntityWithId {
     private Long id;
     @NotNull(message = "Enter picture type")
     private PictureType pictureType;
-    @CreatedDate
+    @CreationTimestamp
     private Instant created;
 }

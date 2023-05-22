@@ -7,6 +7,7 @@ import org.springframework.lang.Nullable;
 import ru.vsu.cs.picstorm.dto.request.DateConstraint;
 import ru.vsu.cs.picstorm.dto.request.UserConstraint;
 import ru.vsu.cs.picstorm.entity.Publication;
+import ru.vsu.cs.picstorm.entity.PublicationState;
 import ru.vsu.cs.picstorm.entity.Subscription;
 import ru.vsu.cs.picstorm.entity.User;
 
@@ -31,21 +32,24 @@ public class PublicationFeedSpecification implements Specification<Publication> 
             Predicate predicate = criteriaBuilder.greaterThanOrEqualTo(createdPath, Instant.now().minus(1, ChronoUnit.DAYS));
             predicates.add(predicate);
         } else if (dateConstraint.equals(DateConstraint.WEEK)) {
-            Predicate predicate = criteriaBuilder.greaterThanOrEqualTo(createdPath, Instant.now().minus(1, ChronoUnit.WEEKS));
+            Predicate predicate = criteriaBuilder.greaterThanOrEqualTo(createdPath, Instant.now().minus(7, ChronoUnit.DAYS));
             predicates.add(predicate);
         }
         if (userConstraint.equals(UserConstraint.SPECIFIED)) {
-            Predicate predicate = criteriaBuilder.and(root.get("user_id").in(filterUser.getId()));
+            Predicate predicate = criteriaBuilder.and(root.get("owner").in(filterUser));
             predicates.add(predicate);
         } else if (userConstraint.equals(UserConstraint.SUBSCRIPTIONS)) {
             Subquery<Subscription> subquery = query.subquery(Subscription.class);
             Root<Subscription> subqueryRoot = subquery.from(Subscription.class);
-            subquery.select(subqueryRoot.get("target_id"))
-                    .where(criteriaBuilder.equal(subqueryRoot.get("subscriber_id"), viewer.getId()));
-            Predicate predicate = criteriaBuilder.and(root.get("user_id").in(subquery));
+            subquery.select(subqueryRoot.get("target"))
+                    .where(criteriaBuilder.equal(subqueryRoot.get("subscriber"), viewer.getId()));
+            Predicate predicate = criteriaBuilder.and(root.get("owner").in(subquery));
             predicates.add(predicate);
         }
 
+        Predicate visiblePredicate = criteriaBuilder.equal(root.get("state"), PublicationState.VISIBLE);
+        predicates.add(visiblePredicate);
+        query.orderBy(criteriaBuilder.desc(createdPath));
         return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
     }
 }

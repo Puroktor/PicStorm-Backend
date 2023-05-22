@@ -3,7 +3,7 @@ package ru.vsu.cs.picstorm.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
 
@@ -26,6 +26,6 @@ public class Reaction extends EntityWithId {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-    @CreatedDate
+    @CreationTimestamp
     private Instant created;
 }

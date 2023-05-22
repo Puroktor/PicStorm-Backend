@@ -28,7 +28,10 @@ public class AuthService {
 
     public JwtTokensDto registerUser(UserRegistrationDto userDto) {
         if (userRepository.findByNickname(userDto.getNickname()).isPresent()) {
-            throw new IllegalArgumentException("Пользователь с таким именем не существует");
+            throw new IllegalArgumentException("Пользователь с таким именем уже существует");
+        }
+        if (userRepository.findByEmail(userDto.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Пользователь с таким email уже существует");
         }
         User user = modelMapper.map(userDto, User.class);
         user.setPasswordHash(passwordEncoder.encode(userDto.getPassword()));

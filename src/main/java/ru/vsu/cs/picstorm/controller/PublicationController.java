@@ -54,14 +54,15 @@ public class PublicationController {
             @RequestParam(value = "userFilter") @Parameter(description = "User filter constraint")
             @NotNull(message = "Предоставьте фильтр по пользователям") UserConstraint userConstraint,
             @RequestParam(value = "filterUser", required = false) @Parameter(description = "Specified filter user id") Long filterUserId,
+            @RequestParam("index") @Min(value = 0, message = "Индекс страницы должен быть >=0")
             @Parameter(description = "Index of desired page", example = "1") int index,
             @RequestParam("size") @Min(value = 1, message = "Размер страницы должен быть >=1")
-            @Parameter(description = "Size of pages") int size,
+            @Parameter(description = "Size of pages", example = "1") int size,
             @Parameter(hidden = true) Authentication authentication) {
         String userNickname = Optional.ofNullable(authentication).map(Authentication::getName).orElse(null);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(publicationService.getPublicationInfo(userNickname, dateConstraint, sortConstraint, userConstraint, filterUserId, index, size));
+                .body(publicationService.getPublicationFeed(userNickname, dateConstraint, sortConstraint, userConstraint, filterUserId, index, size));
     }
 
     @Operation(summary = "Returns publication picture by id")
@@ -87,7 +88,7 @@ public class PublicationController {
 
     @Operation(summary = "Bans publication")
     @PutMapping("{publicationId}")
-    @PreAuthorize("hasAuthority('BAN_USER_AUTHORITY')")
+    @PreAuthorize("hasAuthority('BAN_PUBLICATION_AUTHORITY')")
     public ResponseEntity<Void> banPublication(@PathVariable long publicationId,
                                                @Parameter(hidden = true) Authentication authentication) {
         String userNickname = authentication.getName();

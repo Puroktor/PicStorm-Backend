@@ -60,7 +60,7 @@ public class PublicationService {
         publicationRepository.save(publication);
     }
 
-    public PageDto<PublicationInfoDto> getPublicationInfo(String viewingUserNickname, DateConstraint dateConstraint, SortConstraint sortConstraint,
+    public PageDto<PublicationInfoDto> getPublicationFeed(String viewingUserNickname, DateConstraint dateConstraint, SortConstraint sortConstraint,
                                                           UserConstraint userConstraint, Long filterUserId, int index, int size) {
         Optional<User> viewer = userRepository.findByNickname(viewingUserNickname);
         if (viewer.isEmpty() && userConstraint.equals(UserConstraint.SUBSCRIPTIONS)) {

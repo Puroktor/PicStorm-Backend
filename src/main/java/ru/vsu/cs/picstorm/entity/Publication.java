@@ -3,7 +3,7 @@ package ru.vsu.cs.picstorm.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
 import java.util.List;
@@ -33,9 +33,9 @@ public class Publication extends EntityWithId {
     @NotNull(message = "Enter publication rating")
     @Builder.Default
     private Long rating = 0L;
-    @CreatedDate
-    private Instant created;
     @OneToMany(mappedBy = "publication", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     private List<Reaction> reactions;
+    @CreationTimestamp
+    private Instant created;
 }

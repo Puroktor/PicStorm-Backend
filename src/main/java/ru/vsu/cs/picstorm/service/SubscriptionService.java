@@ -13,6 +13,7 @@ import ru.vsu.cs.picstorm.dto.response.SubscriptionDto;
 import ru.vsu.cs.picstorm.dto.response.UserLineDto;
 import ru.vsu.cs.picstorm.entity.Subscription;
 import ru.vsu.cs.picstorm.entity.User;
+import ru.vsu.cs.picstorm.entity.UserRole;
 import ru.vsu.cs.picstorm.repository.SubscriptionRepository;
 import ru.vsu.cs.picstorm.repository.UserRepository;
 
@@ -32,7 +33,7 @@ public class SubscriptionService {
 
     public PageDto<UserLineDto> getSubscribers(@Nullable String viewingUserNickname, long userId, int index, int size) {
         BiFunction<User, Pageable, Page<User>> findUsersFunction = (user, pageable) -> {
-            Page<Subscription> subscriptions = subscriptionRepository.findAllByTarget(user, pageable);
+            Page<Subscription> subscriptions = subscriptionRepository.findPageByTarget(user, pageable);
             return subscriptions.map(Subscription::getSubscriber);
         };
         return getSubscriptionUserList(findUsersFunction, viewingUserNickname, userId, index, size);
@@ -50,6 +51,9 @@ public class SubscriptionService {
                                                          String viewingUserNickname, long userId, int index, int size) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("Пользователь не существует"));
+        if (user.getRole().equals(UserRole.BANNED)) {
+            throw new IllegalArgumentException("Пользователь заблокирован");
+        }
         Pageable pageable = PageRequest.of(index, size, Sort.by("nickname"));
         Page<User> subscriptionUsersPage = findUsersFunction.apply(user, pageable);
         List<UserLineDto> subscribersDtoList = userService.mapUserResultListForView(viewingUserNickname, subscriptionUsersPage);
@@ -62,6 +66,13 @@ public class SubscriptionService {
 
         User targetUser = userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("Пользователь не существует"));
+
+        if (targetUser.getRole().equals(UserRole.BANNED)) {
+            throw new IllegalArgumentException("Пользователь заблокирован");
+        }
+        if (requestingUser.equals(targetUser)) {
+            throw new IllegalArgumentException("Нельзя подпсаться на себя");
+        }
 
         Optional<Subscription> optionalSubscription = subscriptionRepository.findBySubscriberAndTarget(requestingUser, targetUser);
         if (optionalSubscription.isPresent()) {

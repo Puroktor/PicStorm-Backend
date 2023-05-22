@@ -50,6 +50,7 @@ public class UserController {
     public ResponseEntity<PageDto<UserLineDto>> findUsersByNickname(
             @Parameter(description = "Nickname part for search")
             @RequestParam(value = "nickname", required = false) String nickname,
+            @RequestParam("index") @Min(value = 0, message = "Индекс страницы должен быть >=0")
             @Parameter(description = "Index of desired page", example = "1") int index,
             @RequestParam("size") @Min(value = 1, message = "Размер страницы должен быть >=1")
             @Parameter(description = "Size of pages") int size,

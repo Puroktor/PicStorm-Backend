@@ -2,7 +2,7 @@ package ru.vsu.cs.picstorm.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
 
@@ -22,6 +22,6 @@ public class Subscription extends EntityWithId {
     @ManyToOne
     @JoinColumn(name = "target_id", nullable = false)
     private User target;
-    @CreatedDate
+    @CreationTimestamp
     private Instant created;
 }

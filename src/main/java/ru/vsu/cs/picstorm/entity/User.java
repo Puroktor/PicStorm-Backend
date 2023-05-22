@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.lang.Nullable;
 
 import java.time.Instant;
@@ -35,6 +35,7 @@ public class User extends EntityWithId {
     @Size(max = 320, message = "Email length must be <= 320 characters")
     @Email(message = "Not valid email", regexp = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@"
             + "[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$")
+    @Column(unique = true)
     private String email;
     @NotBlank(message = "Enter user password hash")
     private String passwordHash;
@@ -43,6 +44,6 @@ public class User extends EntityWithId {
     @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     private List<Publication> publications;
-    @CreatedDate
+    @CreationTimestamp
     private Instant created;
 }

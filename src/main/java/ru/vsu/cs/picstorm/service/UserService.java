@@ -126,6 +126,9 @@ public class UserService {
     public UserProfileDto getUserProfile(@Nullable String requesterUsername, long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("Пользователь не существует"));
+        if (user.getRole() == UserRole.BANNED) {
+            throw new IllegalArgumentException("Пользователь заблокирован");
+        }
         UserProfileDto profileDto = modelMapper.map(user, UserProfileDto.class);
         ResponsePictureDto avatarDto = getUserAvatar(user);
         profileDto.setAvatar(avatarDto);
