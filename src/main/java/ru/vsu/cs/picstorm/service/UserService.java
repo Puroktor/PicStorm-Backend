@@ -22,9 +22,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-import static ru.vsu.cs.picstorm.entity.RoleAuthority.BAN_USER_AUTHORITY;
-import static ru.vsu.cs.picstorm.entity.RoleAuthority.MANAGE_ADMINS_AUTHORITY;
-
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -35,22 +32,27 @@ public class UserService {
     private final PictureRepository pictureRepository;
     private final ModelMapper modelMapper;
 
-    public PageDto<UserLineDto> findUsersByNickname(@Nullable String searchingUseNickname, @Nullable String searchNickname, int index, int size) {
+    public PageDto<UserLineDto> findUsersByNickname(@Nullable String searchingUserNickname, @Nullable String searchNickname, int index, int size) {
         Pageable pageable = PageRequest.of(index, size, Sort.by("nickname"));
         searchNickname = searchNickname == null ? "" : searchNickname;
+        User searchingUser = null;
+        if (searchingUserNickname !=null) {
+            searchingUser = userRepository.findByNickname(searchingUserNickname)
+                    .orElseThrow(() -> new NoSuchElementException("Пользователь не существует"));
+        }
         Page<User> usersPage = userRepository.findPageByNickname(searchNickname, pageable);
-        List<UserLineDto> userDtoList = mapUserResultListForView(searchingUseNickname, usersPage);
+        List<UserLineDto> userDtoList = mapUserResultListForView(searchingUser, usersPage);
         return new PageDto<>(userDtoList, index, size, usersPage.isLast());
     }
 
-    public List<UserLineDto> mapUserResultListForView(@Nullable String viewingUseNickname, Streamable<User> usersPage) {
+    public List<UserLineDto> mapUserResultListForView(@Nullable User viewingUser, Streamable<User> usersPage) {
         return usersPage.stream().map(user -> {
             UserLineDto lineDto = new UserLineDto();
             lineDto.setUserId(user.getId());
             lineDto.setNickname(user.getNickname());
             ResponsePictureDto avatarDto = getUserAvatar(user);
             lineDto.setAvatar(avatarDto);
-            Optional<Subscription> subscription = getSubscription(viewingUseNickname, user);
+            Optional<Subscription> subscription = getSubscription(viewingUser, user);
             lineDto.setSubscribed(subscription.isPresent());
             return lineDto;
         }).toList();
@@ -71,21 +73,16 @@ public class UserService {
         return null;
     }
 
-    private Optional<Subscription> getSubscription(@Nullable String subscriberName, User tagetUser) {
-        if (subscriberName != null) {
-            User viewingUser = userRepository.findByNickname(subscriberName)
-                    .orElseThrow(() -> new NoSuchElementException("Пользователь не существует"));
-            return subscriptionRepository.findBySubscriberAndTarget(viewingUser, tagetUser);
+    private Optional<Subscription> getSubscription(@Nullable User user, User tagetUser) {
+        if (user != null) {
+            return subscriptionRepository.findBySubscriberAndTarget(user, tagetUser);
         }
         return Optional.empty();
     }
 
     public UserRoleDto banUser(String requesterUsername, Long userId) {
-        User requestingUser = userRepository.findByNickname(requesterUsername)
+        userRepository.findByNickname(requesterUsername)
                 .orElseThrow(() -> new NoSuchElementException("Пользователь не существует"));
-        if (!requestingUser.getRole().getAuthorities().contains(BAN_USER_AUTHORITY)) {
-            throw new AccessDeniedException("У вас нет права блокировать пользователей");
-        }
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("Пользователь не существует"));
         if (user.getRole() != UserRole.ORDINARY) {
@@ -93,8 +90,7 @@ public class UserService {
         }
 
         UserRoleDto userRoleDto = setUserRole(user, UserRole.BANNED);
-        List<Publication> publications = publicationRepository.findAllByOwner(user);
-        for (Publication publication : publications) {
+        for (Publication publication : user.getPublications()) {
             publication.setState(PublicationState.USER_BANNED);
             publicationRepository.save(publication);
         }
@@ -102,11 +98,8 @@ public class UserService {
     }
 
     public UserRoleDto changeAdminRole(String requesterUsername, Long userId) {
-        User requestingUser = userRepository.findByNickname(requesterUsername)
+        userRepository.findByNickname(requesterUsername)
                 .orElseThrow(() -> new NoSuchElementException("Пользователь не существует"));
-        if (!requestingUser.getRole().getAuthorities().contains(MANAGE_ADMINS_AUTHORITY)) {
-            throw new AccessDeniedException("У вас нет права управлять ролями администраторов");
-        }
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("Пользователь не существует"));
 
@@ -129,10 +122,15 @@ public class UserService {
         if (user.getRole() == UserRole.BANNED) {
             throw new IllegalArgumentException("Пользователь заблокирован");
         }
+        User requester = null;
+        if (requesterUsername != null) {
+            requester = userRepository.findByNickname(requesterUsername)
+                    .orElseThrow(() -> new NoSuchElementException("Пользователь не существует"));
+        }
         UserProfileDto profileDto = modelMapper.map(user, UserProfileDto.class);
         ResponsePictureDto avatarDto = getUserAvatar(user);
         profileDto.setAvatar(avatarDto);
-        Optional<Subscription> subscription = getSubscription(requesterUsername, user);
+        Optional<Subscription> subscription = getSubscription(requester, user);
         profileDto.setSubscribed(subscription.isPresent());
         long subscriptionsCount = subscriptionRepository.countBySubscriber(user);
         profileDto.setSubscriptionsCount(subscriptionsCount);
@@ -149,7 +147,7 @@ public class UserService {
         newAvatar.setPictureType(uploadPictureDto.getPictureType());
         newAvatar = pictureRepository.save(newAvatar);
 
-        String avatarName = pictureStorageService.getPublicationName(newAvatar);
+        String avatarName = pictureStorageService.getAvatarName(newAvatar);
         try {
             pictureStorageService.savePicture(avatarName, uploadPictureDto.getPicture());
         } catch (Exception e) {

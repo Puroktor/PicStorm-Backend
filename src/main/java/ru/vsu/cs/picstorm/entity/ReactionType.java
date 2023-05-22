@@ -12,7 +12,7 @@ public enum ReactionType {
         } else if (oldReaction.equals(this)) {
             return 0;
         } else {
-            return oldReaction.equals(DISLIKE) ? 1: -1;
+            return oldReaction.equals(DISLIKE) ? 2 : -2;
         }
     }
 }

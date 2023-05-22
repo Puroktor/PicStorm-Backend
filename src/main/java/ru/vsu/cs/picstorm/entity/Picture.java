@@ -16,6 +16,7 @@ import java.time.Instant;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Picture extends EntityWithId {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

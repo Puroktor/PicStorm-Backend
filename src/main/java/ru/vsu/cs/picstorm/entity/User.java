@@ -19,6 +19,7 @@ import java.util.List;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class User extends EntityWithId {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

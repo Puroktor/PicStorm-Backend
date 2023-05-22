@@ -12,6 +12,7 @@ import java.time.Instant;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Subscription extends EntityWithId {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

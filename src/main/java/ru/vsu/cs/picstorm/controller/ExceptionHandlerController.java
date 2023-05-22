@@ -1,5 +1,6 @@
 package ru.vsu.cs.picstorm.controller;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import jakarta.validation.ValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -44,6 +45,12 @@ public class ExceptionHandlerController {
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public ErrorDto handleIllegalArgumentException(IllegalArgumentException e) {
+        return new ErrorDto(e.getMessage());
+    }
+
+    @ExceptionHandler(JWTVerificationException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ErrorDto handleJWTVerificationException(JWTVerificationException e) {
         return new ErrorDto(e.getMessage());
     }
 

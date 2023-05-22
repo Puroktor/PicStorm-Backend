@@ -23,8 +23,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-import static ru.vsu.cs.picstorm.entity.RoleAuthority.BAN_USER_AUTHORITY;
-
 @Service
 @RequiredArgsConstructor
 public class PublicationService {
@@ -148,18 +146,14 @@ public class PublicationService {
             ratingChange = newReaction.calculateRatingChange(null);
         }
         reaction = reactionRepository.save(reaction);
-        publication.setRating(publication.getRating() - ratingChange);
+        publication.setRating(publication.getRating() + ratingChange);
         publicationRepository.save(publication);
         return new PublicationReactionDto(reaction.getType());
     }
 
     public void banPublication(String userNickname, long publicationId) {
-        User user = userRepository.findByNickname(userNickname)
+        userRepository.findByNickname(userNickname)
                 .orElseThrow(() -> new NoSuchElementException("Пользователь не существует"));
-
-        if (!user.getRole().getAuthorities().contains(BAN_USER_AUTHORITY)) {
-            throw new AccessDeniedException("У вас нет права блокировать публикации");
-        }
 
         Publication publication = publicationRepository.findById(publicationId)
                 .orElseThrow(() -> new NoSuchElementException("Публикация не существует"));
