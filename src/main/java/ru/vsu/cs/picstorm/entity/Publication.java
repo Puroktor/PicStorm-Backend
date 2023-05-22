@@ -22,7 +22,7 @@ public class Publication extends EntityWithId {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User owner;
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "picture_id", nullable = false)
     private Picture picture;
     @NotNull(message = "Enter publication type")
