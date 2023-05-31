@@ -29,7 +29,15 @@ public class SecurityConfig implements WebMvcConfigurer {
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.authorizeHttpRequests().requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll();
-        http.authorizeHttpRequests().requestMatchers("/api/auth/**").permitAll();
+        http.authorizeHttpRequests().requestMatchers(
+                "/api/auth/**",
+                "/api/user/**/profile**",
+                "/api/user/search**",
+                "/api/publication/**/picture**",
+                "/api/publication/feed**",
+                "/api/subscriptions/**",
+                "/api/subscribers/**"
+        ).permitAll();
         http.authorizeHttpRequests().anyRequest().authenticated();
         http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

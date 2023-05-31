@@ -30,7 +30,7 @@ public class SubscriptionController {
     private final SubscriptionService subscriptionService;
 
     @Operation(summary = "Returns user subscribers by id")
-    @GetMapping("subscribes/{userId}")
+    @GetMapping("subscribers/{userId}")
     public ResponseEntity<PageDto<UserLineDto>> getSubscribers(
             @Parameter(description = "User ID whose subscribers are required") @PathVariable("userId") long userId,
             @RequestParam("index") @Min(value = 0, message = "Индекс страницы должен быть >=0")
