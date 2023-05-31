@@ -11,5 +11,5 @@ public class UserLineDto {
     private Long userId;
     private ResponsePictureDto avatar;
     private String nickname;
-    private boolean subscribed;
+    private Boolean subscribed;
 }

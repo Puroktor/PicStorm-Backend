@@ -62,7 +62,7 @@ public class UserServiceTests {
         assertEquals(profileUser.getRole(), profileDto.getRole());
         assertEquals(5L, profileDto.getSubscriptionsCount());
         assertEquals(10L, profileDto.getSubscribersCount());
-        assertFalse(profileDto.isSubscribed());
+        assertNull(profileDto.getSubscribed());
 
         verify(pictureStorageService, times(0)).getPicture(any());
     }
@@ -88,7 +88,7 @@ public class UserServiceTests {
         assertEquals(profileUser.getRole(), profileDto.getRole());
         assertEquals(5L, profileDto.getSubscriptionsCount());
         assertEquals(10L, profileDto.getSubscribersCount());
-        assertTrue(profileDto.isSubscribed());
+        assertTrue(profileDto.getSubscribed());
 
         verify(pictureStorageService, times(1)).getPicture(any());
     }
@@ -123,7 +123,7 @@ public class UserServiceTests {
         assertEquals(user.getId(), userDto.getUserId());
         assertEquals(user.getNickname(), userDto.getNickname());
         assertNull(userDto.getAvatar());
-        assertFalse(userDto.isSubscribed());
+        assertNull(userDto.getSubscribed());
 
         verify(pictureStorageService, times(0)).getPicture(any());
     }
@@ -151,7 +151,7 @@ public class UserServiceTests {
         assertEquals(user.getId(), userDto.getUserId());
         assertEquals(user.getNickname(), userDto.getNickname());
         assertEquals(picture.getPictureType(), userDto.getAvatar().getPictureType());
-        assertTrue(userDto.isSubscribed());
+        assertTrue(userDto.getSubscribed());
 
         verify(pictureStorageService, times(1)).getPicture(any());
     }

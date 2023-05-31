@@ -57,7 +57,7 @@ public class SubscriptionServiceTests {
         assertEquals(user.getId(), userDto.getUserId());
         assertEquals(user.getNickname(), userDto.getNickname());
         assertEquals(picture.getPictureType(), userDto.getAvatar().getPictureType());
-        assertTrue(userDto.isSubscribed());
+        assertTrue(userDto.getSubscribed());
 
         verify(pictureStorageService, times(1)).getPicture(any());
     }
@@ -89,7 +89,7 @@ public class SubscriptionServiceTests {
         assertEquals(user.getId(), userDto.getUserId());
         assertEquals(user.getNickname(), userDto.getNickname());
         assertEquals(picture.getPictureType(), userDto.getAvatar().getPictureType());
-        assertFalse(userDto.isSubscribed());
+        assertNull(userDto.getSubscribed());
 
         verify(pictureStorageService, times(1)).getPicture(any());
     }

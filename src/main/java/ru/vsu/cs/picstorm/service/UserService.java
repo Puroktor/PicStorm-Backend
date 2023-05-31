@@ -52,8 +52,10 @@ public class UserService {
             lineDto.setNickname(user.getNickname());
             ResponsePictureDto avatarDto = getUserAvatar(user);
             lineDto.setAvatar(avatarDto);
-            Optional<Subscription> subscription = getSubscription(viewingUser, user);
-            lineDto.setSubscribed(subscription.isPresent());
+            if (viewingUser != null && !viewingUser.equals(user)) {
+                Optional<Subscription> subscription = subscriptionRepository.findBySubscriberAndTarget(viewingUser, user);
+                lineDto.setSubscribed(subscription.isPresent());
+            }
             return lineDto;
         }).toList();
     }
@@ -71,13 +73,6 @@ public class UserService {
             return new ResponsePictureDto(avatar.getPictureType(), avatarData);
         }
         return null;
-    }
-
-    private Optional<Subscription> getSubscription(@Nullable User user, User tagetUser) {
-        if (user != null) {
-            return subscriptionRepository.findBySubscriberAndTarget(user, tagetUser);
-        }
-        return Optional.empty();
     }
 
     public UserRoleDto banUser(String requesterUsername, Long userId) {
@@ -130,8 +125,10 @@ public class UserService {
         UserProfileDto profileDto = modelMapper.map(user, UserProfileDto.class);
         ResponsePictureDto avatarDto = getUserAvatar(user);
         profileDto.setAvatar(avatarDto);
-        Optional<Subscription> subscription = getSubscription(requester, user);
-        profileDto.setSubscribed(subscription.isPresent());
+        if (requester != null && !requester.equals(user)) {
+            Optional<Subscription> subscription = subscriptionRepository.findBySubscriberAndTarget(requester, user);
+            profileDto.setSubscribed(subscription.isPresent());
+        }
         long subscriptionsCount = subscriptionRepository.countBySubscriber(user);
         profileDto.setSubscriptionsCount(subscriptionsCount);
         long subscribersCount = subscriptionRepository.countByTarget(user);

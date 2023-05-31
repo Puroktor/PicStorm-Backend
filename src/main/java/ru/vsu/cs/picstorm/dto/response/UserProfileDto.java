@@ -13,7 +13,7 @@ public class UserProfileDto {
     private ResponsePictureDto avatar;
     private String nickname;
     private UserRole role;
-    private boolean subscribed;
+    private Boolean subscribed;
     private Long subscriptionsCount;
     private Long subscribersCount;
 }
