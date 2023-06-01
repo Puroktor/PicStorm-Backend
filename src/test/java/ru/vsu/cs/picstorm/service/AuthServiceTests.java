@@ -14,7 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import ru.vsu.cs.picstorm.dto.request.UserLoginDto;
 import ru.vsu.cs.picstorm.dto.request.UserRegistrationDto;
-import ru.vsu.cs.picstorm.dto.response.JwtTokensDto;
+import ru.vsu.cs.picstorm.dto.response.JwtTokenDto;
 import ru.vsu.cs.picstorm.entity.User;
 import ru.vsu.cs.picstorm.entity.UserRole;
 import ru.vsu.cs.picstorm.repository.UserRepository;
@@ -41,12 +41,10 @@ public class AuthServiceTests {
     @Autowired
     private AuthService authService;
     private final String accessToken = "access";
-    private final String refreshToken = "refresh";
 
     @BeforeEach
     public void prepareTest() {
         when(jwtTokenProvider.generateAccessToken(any())).thenReturn(accessToken);
-        when(jwtTokenProvider.generateRefreshToken(any())).thenReturn(refreshToken);
     }
 
     @Test
@@ -85,10 +83,9 @@ public class AuthServiceTests {
         when(passwordEncoder.encode(paasword)).thenReturn(encoded);
         when(userRepository.save(any())).thenReturn(expectedUser);
 
-        JwtTokensDto tokensDto = authService.registerUser(registrationDto);
+        JwtTokenDto tokensDto = authService.registerUser(registrationDto);
 
         assertEquals(accessToken, tokensDto.getAccessToken());
-        assertEquals(refreshToken, tokensDto.getRefreshToken());
         verify(passwordEncoder, times(1)).encode(paasword);
         verify(userRepository, times(1)).save(argThat(user -> {
             assertEquals(expectedUser.getNickname(), user.getNickname());
@@ -110,10 +107,9 @@ public class AuthServiceTests {
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(name, paasword);
         when(userRepository.findByNickname(name)).thenReturn(Optional.of(user));
 
-        JwtTokensDto tokensDto = authService.loginUser(loginDto);
+        JwtTokenDto tokensDto = authService.loginUser(loginDto);
 
         assertEquals(accessToken, tokensDto.getAccessToken());
-        assertEquals(refreshToken, tokensDto.getRefreshToken());
         verify(authenticationManager, times(1)).authenticate(authToken);
     }
 
@@ -159,10 +155,9 @@ public class AuthServiceTests {
         when(jwtTokenProvider.getUsernameFromJwt(refresh)).thenReturn(name);
         when(userRepository.findByNickname(name)).thenReturn(Optional.of(user));
 
-        JwtTokensDto tokensDto = authService.refreshToken(refresh);
+        JwtTokenDto tokensDto = authService.refreshToken(refresh);
 
         assertEquals(accessToken, tokensDto.getAccessToken());
-        assertEquals(refreshToken, tokensDto.getRefreshToken());
     }
 
 }

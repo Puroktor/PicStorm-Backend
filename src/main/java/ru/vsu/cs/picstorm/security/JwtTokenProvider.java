@@ -23,8 +23,6 @@ public class JwtTokenProvider {
     private String secretKey;
     @Value("${jwt.access-validity}")
     private long accessValidity;
-    @Value("${jwt.refresh-validity}")
-    private long refreshValidity;
 
     public String generateAccessToken(User user) {
         Algorithm algorithm = Algorithm.HMAC256(secretKey);
@@ -34,14 +32,6 @@ public class JwtTokenProvider {
                 .withClaim("id", user.getId())
                 .withClaim("authorities", user.getRole().getSimpleGrantedAuthorities().stream()
                         .map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
-                .sign(algorithm);
-    }
-
-    public String generateRefreshToken(User user) {
-        Algorithm algorithm = Algorithm.HMAC256(secretKey);
-        return JWT.create()
-                .withSubject(user.getNickname())
-                .withExpiresAt(new Date(System.currentTimeMillis() + refreshValidity))
                 .sign(algorithm);
     }
 

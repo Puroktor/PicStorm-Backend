@@ -7,7 +7,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import ru.vsu.cs.picstorm.dto.response.JwtTokensDto;
+import ru.vsu.cs.picstorm.dto.response.JwtTokenDto;
 import ru.vsu.cs.picstorm.dto.request.UserLoginDto;
 import ru.vsu.cs.picstorm.dto.request.UserRegistrationDto;
 import ru.vsu.cs.picstorm.entity.User;
@@ -26,7 +26,7 @@ public class AuthService {
     private final JwtTokenProvider tokenProvider;
     private final ModelMapper modelMapper;
 
-    public JwtTokensDto registerUser(UserRegistrationDto userDto) {
+    public JwtTokenDto registerUser(UserRegistrationDto userDto) {
         if (userRepository.findByNickname(userDto.getNickname()).isPresent()) {
             throw new IllegalArgumentException("Пользователь с таким именем уже существует");
         }
@@ -40,7 +40,7 @@ public class AuthService {
         return createTokensForUser(user);
     }
 
-    public JwtTokensDto loginUser(UserLoginDto userDto) {
+    public JwtTokenDto loginUser(UserLoginDto userDto) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 userDto.getNickname(), userDto.getPassword()));
         User dbUser = userRepository.findByNickname(userDto.getNickname())
@@ -49,18 +49,18 @@ public class AuthService {
         return createTokensForUser(dbUser);
     }
 
-    public JwtTokensDto refreshToken(String refreshToken) {
+    public JwtTokenDto refreshToken(String refreshToken) {
         String nickname = tokenProvider.getUsernameFromJwt(refreshToken);
         User dbUser = userRepository.findByNickname(nickname)
                 .orElseThrow(() -> new NoSuchElementException("Пользователь не существует"));
         return createTokensForUser(dbUser);
     }
 
-    private JwtTokensDto createTokensForUser(User user) {
+    private JwtTokenDto createTokensForUser(User user) {
         if (user.getRole().equals(UserRole.BANNED)) {
             throw new AccessDeniedException("Пользователь заблокирован");
         }
 
-        return new JwtTokensDto(tokenProvider.generateAccessToken(user), tokenProvider.generateRefreshToken(user));
+        return new JwtTokenDto(tokenProvider.generateAccessToken(user));
     }
 }

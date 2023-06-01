@@ -20,6 +20,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtTokenFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
+    private final String AUTH_HEADER_PREFIX = "Bearer ";
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
@@ -27,7 +28,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         try {
             String token = request.getHeader(HttpHeaders.AUTHORIZATION);
             if (token != null) {
-                token = token.substring("Bearer ".length());
+                token = token.substring(AUTH_HEADER_PREFIX.length());
                 SecurityContextHolder.getContext().setAuthentication(jwtTokenProvider.getAuthTokenFromJwt(token));
             }
             filterChain.doFilter(request, response);

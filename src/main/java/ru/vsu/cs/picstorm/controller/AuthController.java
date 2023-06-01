@@ -11,7 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.vsu.cs.picstorm.dto.response.JwtTokensDto;
+import ru.vsu.cs.picstorm.dto.response.JwtTokenDto;
 import ru.vsu.cs.picstorm.dto.request.UserLoginDto;
 import ru.vsu.cs.picstorm.dto.request.UserRegistrationDto;
 import ru.vsu.cs.picstorm.service.AuthService;
@@ -26,7 +26,7 @@ public class AuthController {
     @Operation(summary = "Registers new user and returns corresponding JWT tokens")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("register")
-    public ResponseEntity<JwtTokensDto> registerUser(
+    public ResponseEntity<JwtTokenDto> registerUser(
             @RequestBody @NotNull(message = "Предоставьте информацию для регистрации") @Valid
             @Parameter(name = "Your registration info") UserRegistrationDto userRegistrationDto) {
         return ResponseEntity
@@ -36,7 +36,7 @@ public class AuthController {
 
     @Operation(summary = "Returns JWT access and refresh tokens if OK")
     @PostMapping("login")
-    public ResponseEntity<JwtTokensDto> loginUser(
+    public ResponseEntity<JwtTokenDto> loginUser(
             @RequestBody @NotNull(message = "Предоставьте информацию для входа") @Valid
             @Parameter(name = "Your login info") UserLoginDto userLoginDto) {
         return ResponseEntity
@@ -46,7 +46,7 @@ public class AuthController {
 
     @Operation(summary = "Returns JWT access and refresh tokens if OK")
     @PostMapping("token/refresh")
-    public ResponseEntity<JwtTokensDto> refreshToken(@RequestBody @NotBlank(message = "Предоставьте токен")
+    public ResponseEntity<JwtTokenDto> refreshToken(@RequestBody @NotBlank(message = "Предоставьте токен")
                                                      @Parameter(name = "Your login info") String refreshToken) {
         return ResponseEntity
                 .status(HttpStatus.OK)

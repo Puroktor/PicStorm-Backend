@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import ru.vsu.cs.picstorm.dto.request.UserLoginDto;
 import ru.vsu.cs.picstorm.dto.request.UserRegistrationDto;
-import ru.vsu.cs.picstorm.dto.response.JwtTokensDto;
+import ru.vsu.cs.picstorm.dto.response.JwtTokenDto;
 import ru.vsu.cs.picstorm.service.AuthService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,12 +28,12 @@ public class AuthControllerTests {
     @Test
     public void registerWithValidInfo() {
         UserRegistrationDto registrationDto = new UserRegistrationDto("name", "pass", "email@gmail.com");
-        JwtTokensDto jwtTokensDto = new JwtTokensDto("access", "refresh");
-        when(authService.registerUser(registrationDto)).thenReturn(jwtTokensDto);
-        ResponseEntity<JwtTokensDto> returned = authController.registerUser(registrationDto);
+        JwtTokenDto jwtTokenDto = new JwtTokenDto("access");
+        when(authService.registerUser(registrationDto)).thenReturn(jwtTokenDto);
+        ResponseEntity<JwtTokenDto> returned = authController.registerUser(registrationDto);
 
         assertEquals(HttpStatus.CREATED, returned.getStatusCode());
-        assertEquals(jwtTokensDto, returned.getBody());
+        assertEquals(jwtTokenDto, returned.getBody());
         verify(authService, times(1)).registerUser(registrationDto);
     }
 
@@ -89,12 +89,12 @@ public class AuthControllerTests {
     @Test
     public void loginWithValidInfo() {
         UserLoginDto loginDto = new UserLoginDto("name", "pass");
-        JwtTokensDto jwtTokensDto = new JwtTokensDto("access", "refresh");
-        when(authService.loginUser(loginDto)).thenReturn(jwtTokensDto);
-        ResponseEntity<JwtTokensDto> returned = authController.loginUser(loginDto);
+        JwtTokenDto jwtTokenDto = new JwtTokenDto("access");
+        when(authService.loginUser(loginDto)).thenReturn(jwtTokenDto);
+        ResponseEntity<JwtTokenDto> returned = authController.loginUser(loginDto);
 
         assertEquals(HttpStatus.OK, returned.getStatusCode());
-        assertEquals(jwtTokensDto, returned.getBody());
+        assertEquals(jwtTokenDto, returned.getBody());
         verify(authService, times(1)).loginUser(loginDto);
     }
 
@@ -129,12 +129,12 @@ public class AuthControllerTests {
     @Test
     public void refreshValidToken() {
         String refreshToken = "refreshToken";
-        JwtTokensDto jwtTokensDto = new JwtTokensDto("access", "refresh");
-        when(authService.refreshToken(refreshToken)).thenReturn(jwtTokensDto);
-        ResponseEntity<JwtTokensDto> returned = authController.refreshToken(refreshToken);
+        JwtTokenDto jwtTokenDto = new JwtTokenDto("access");
+        when(authService.refreshToken(refreshToken)).thenReturn(jwtTokenDto);
+        ResponseEntity<JwtTokenDto> returned = authController.refreshToken(refreshToken);
 
         assertEquals(HttpStatus.OK, returned.getStatusCode());
-        assertEquals(jwtTokensDto, returned.getBody());
+        assertEquals(jwtTokenDto, returned.getBody());
         verify(authService, times(1)).refreshToken(refreshToken);
     }
 
