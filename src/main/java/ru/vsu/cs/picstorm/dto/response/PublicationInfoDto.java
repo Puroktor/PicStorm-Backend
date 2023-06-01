@@ -15,7 +15,7 @@ import java.time.Instant;
 public class PublicationInfoDto {
     private Long publicationId;
     private Long ownerId;
-    private ResponsePictureDto ownerAvatar;
+    private byte[] ownerAvatar;
     private String ownerNickname;
     private Long rating;
     private Instant uploaded;

@@ -9,8 +9,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.multipart.MultipartFile;
 import ru.vsu.cs.picstorm.dto.request.PublicationReactionDto;
-import ru.vsu.cs.picstorm.dto.request.UploadPictureDto;
-import ru.vsu.cs.picstorm.dto.response.ResponsePictureDto;
 import ru.vsu.cs.picstorm.entity.*;
 import ru.vsu.cs.picstorm.repository.PictureRepository;
 import ru.vsu.cs.picstorm.repository.PublicationRepository;
@@ -20,8 +18,7 @@ import ru.vsu.cs.picstorm.repository.UserRepository;
 import java.time.Instant;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -46,7 +43,6 @@ public class PublicationServiceTests {
         String nickname = "name";
         String publicationName = "publication";
         MultipartFile photo = new MockMultipartFile("file", new byte[0]);
-        UploadPictureDto pictureDto = new UploadPictureDto(PictureType.JPEG, photo);
         User user = User.builder().id(1L).build();
         Picture picture = Picture.builder().id(1L).build();
 
@@ -54,7 +50,7 @@ public class PublicationServiceTests {
         when(pictureRepository.save(any())).thenReturn(picture);
         when(pictureStorageService.getPublicationName(picture)).thenReturn(publicationName);
 
-        publicationService.uploadPublication(nickname, pictureDto);
+        publicationService.uploadPublication(nickname, photo);
 
         verify(pictureRepository, times(1)).save(any());
         verify(pictureStorageService, times(1)).getPublicationName(picture);
@@ -72,7 +68,6 @@ public class PublicationServiceTests {
         String nickname = "name";
         String publicationName = "publication";
         MultipartFile photo = new MockMultipartFile("file", new byte[0]);
-        UploadPictureDto pictureDto = new UploadPictureDto(PictureType.JPEG, photo);
         User user = User.builder().id(1L).build();
         Picture picture = Picture.builder().id(1L).build();
 
@@ -81,7 +76,7 @@ public class PublicationServiceTests {
         when(pictureStorageService.getPublicationName(picture)).thenReturn(publicationName);
         doThrow(Exception.class).when(pictureStorageService).savePicture(publicationName, photo);
 
-        assertThrows(RuntimeException.class, () -> publicationService.uploadPublication(nickname, pictureDto));
+        assertThrows(RuntimeException.class, () -> publicationService.uploadPublication(nickname, photo));
 
         verify(pictureRepository, times(1)).save(any());
         verify(pictureRepository, times(1)).delete(picture);
@@ -95,17 +90,16 @@ public class PublicationServiceTests {
         long publicationId = 1L;
         String pictureName = "picture";
         byte[] pictureData = new byte[10];
-        Picture picture = Picture.builder().pictureType(PictureType.JPEG).build();
+        Picture picture = new Picture();
         Publication publication = Publication.builder().id(publicationId).picture(picture).state(PublicationState.VISIBLE).build();
 
         when(publicationRepository.findById(publicationId)).thenReturn(Optional.of(publication));
         when(pictureStorageService.getPublicationName(any())).thenReturn(pictureName);
         when(pictureStorageService.getPicture(pictureName)).thenReturn(pictureData);
 
-        ResponsePictureDto dto = publicationService.getPublicationPicture(publicationId);
+        byte[] returnedPublicationData = publicationService.getPublicationPicture(publicationId);
 
-        assertEquals(picture.getPictureType(), dto.getPictureType());
-        assertEquals(pictureData, dto.getData());
+        assertArrayEquals(returnedPublicationData, pictureData);
         verify(pictureStorageService, times(1)).getPicture(pictureName);
     }
 

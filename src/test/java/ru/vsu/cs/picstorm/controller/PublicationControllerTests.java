@@ -13,19 +13,19 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
-import ru.vsu.cs.picstorm.dto.request.*;
-import ru.vsu.cs.picstorm.dto.response.*;
-import ru.vsu.cs.picstorm.entity.PictureType;
+import ru.vsu.cs.picstorm.dto.request.DateConstraint;
+import ru.vsu.cs.picstorm.dto.request.PublicationReactionDto;
+import ru.vsu.cs.picstorm.dto.request.SortConstraint;
+import ru.vsu.cs.picstorm.dto.request.UserConstraint;
+import ru.vsu.cs.picstorm.dto.response.PageDto;
+import ru.vsu.cs.picstorm.dto.response.PublicationInfoDto;
 import ru.vsu.cs.picstorm.entity.ReactionType;
 import ru.vsu.cs.picstorm.service.PublicationService;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.times;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -99,38 +99,37 @@ public class PublicationControllerTests {
 
     @Test
     public void uploadPublicationAsAuthorized() {
-        UploadPictureDto uploadPictureDto = new UploadPictureDto(PictureType.JPEG, new MockMultipartFile("file", new byte[0]));
-        assertThrows(AuthenticationException.class, () -> publicationController.uploadPublication(uploadPictureDto, authentication));
+        MockMultipartFile picture = new MockMultipartFile("file", new byte[0]);
+        assertThrows(AuthenticationException.class, () -> publicationController.uploadPublication(picture, authentication));
         verify(publicationService, times(0)).uploadPublication(anyString(), any());
     }
 
     @Test
     @WithMockUser(authorities = "UPLOAD_AUTHORITY")
     public void uploadEmptyPublication() {
-        UploadPictureDto uploadPictureDto = new UploadPictureDto(PictureType.JPEG, null);
-        assertThrows(ValidationException.class, () -> publicationController.uploadPublication(uploadPictureDto, authentication));
+        assertThrows(ValidationException.class, () -> publicationController.uploadPublication(null, authentication));
         verify(publicationService, times(0)).uploadPublication(anyString(), any());
     }
 
     @Test
     @WithMockUser(authorities = "UPLOAD_AUTHORITY")
     public void uploadValidPublication() {
-        UploadPictureDto uploadPictureDto = new UploadPictureDto(PictureType.JPEG, new MockMultipartFile("file", new byte[0]));
-        ResponseEntity<?> returned = publicationController.uploadPublication(uploadPictureDto, authentication);
+        MockMultipartFile uploadPicture = new MockMultipartFile("file", new byte[0]);
+        ResponseEntity<?> returned = publicationController.uploadPublication(uploadPicture, authentication);
 
         assertEquals(HttpStatus.CREATED, returned.getStatusCode());
-        verify(publicationService, times(1)).uploadPublication(MOCK_USERNAME, uploadPictureDto);
+        verify(publicationService, times(1)).uploadPublication(MOCK_USERNAME, uploadPicture);
     }
 
     @Test
     public void getPublicationPictureWithValidParams() {
         long publicationId = 0;
-        ResponsePictureDto pictureDto = new ResponsePictureDto();
-        when(publicationService.getPublicationPicture(publicationId)).thenReturn(pictureDto);
-        ResponseEntity<?> returned = publicationController.getPublicationPicture(publicationId);
+        byte[] picture = new byte[0];
+        when(publicationService.getPublicationPicture(publicationId)).thenReturn(picture);
+        ResponseEntity<byte[]> returned = publicationController.getPublicationPicture(publicationId);
 
         assertEquals(HttpStatus.OK, returned.getStatusCode());
-        assertEquals(pictureDto, returned.getBody());
+        assertArrayEquals(picture, returned.getBody());
         verify(publicationService, times(1)).getPublicationPicture(publicationId);
     }
 

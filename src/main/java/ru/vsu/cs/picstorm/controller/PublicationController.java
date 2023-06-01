@@ -14,10 +14,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ru.vsu.cs.picstorm.dto.request.*;
 import ru.vsu.cs.picstorm.dto.response.PageDto;
 import ru.vsu.cs.picstorm.dto.response.PublicationInfoDto;
-import ru.vsu.cs.picstorm.dto.response.ResponsePictureDto;
 import ru.vsu.cs.picstorm.service.PublicationService;
 
 import java.util.Optional;
@@ -35,10 +35,10 @@ public class PublicationController {
     @PostMapping
     @PreAuthorize("hasAuthority('UPLOAD_AUTHORITY')")
     public ResponseEntity<Void> uploadPublication(
-            @ModelAttribute @NotNull(message = "Предоставьте фото для загурзки") @Valid UploadPictureDto uploadPictureDto,
+            @RequestBody @NotNull(message = "Предоставьте фото для загурзки") @Valid MultipartFile uploadPicture,
             @Parameter(hidden = true) Authentication authentication) {
         String userNickname = authentication.getName();
-        publicationService.uploadPublication(userNickname, uploadPictureDto);
+        publicationService.uploadPublication(userNickname, uploadPicture);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .build();
@@ -67,7 +67,7 @@ public class PublicationController {
 
     @Operation(summary = "Returns publication picture by id")
     @GetMapping("{publicationId}/picture")
-    public ResponseEntity<ResponsePictureDto> getPublicationPicture(@PathVariable long publicationId) {
+    public ResponseEntity<byte[]> getPublicationPicture(@PathVariable long publicationId) {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(publicationService.getPublicationPicture(publicationId));

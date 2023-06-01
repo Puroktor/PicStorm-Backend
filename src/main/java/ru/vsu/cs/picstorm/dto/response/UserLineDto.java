@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserLineDto {
     private Long userId;
-    private ResponsePictureDto avatar;
+    private byte[] avatar;
     private String nickname;
     private Boolean subscribed;
 }

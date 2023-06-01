@@ -53,10 +53,10 @@ public class PublicationRepositoryTests {
         user2 = new User(null, null, "bbbb", "email2@email.com", "hash", UserRole.SUPER_ADMIN, new ArrayList<>(), null);
         subscription = new Subscription(null, user1, user2, null);
 
-        picture1 = new Picture(null, PictureType.JPEG, null);
-        picture2 = new Picture(null, PictureType.PNG, null);
-        picture3 = new Picture(null, PictureType.JPEG, null);
-        picture4 = new Picture(null, PictureType.PNG, null);
+        picture1 = new Picture();
+        picture2 = new Picture();
+        picture3 = new Picture();
+        picture4 = new Picture();
 
         publication1 = new Publication(null, user1, picture1, PublicationState.VISIBLE, 0L, new ArrayList<>(), null);
         publication2 = new Publication(null, user2, picture2, PublicationState.VISIBLE, 1L, new ArrayList<>(), null);

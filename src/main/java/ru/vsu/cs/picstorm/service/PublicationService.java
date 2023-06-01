@@ -6,10 +6,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import ru.vsu.cs.picstorm.dto.request.*;
 import ru.vsu.cs.picstorm.dto.response.PageDto;
 import ru.vsu.cs.picstorm.dto.response.PublicationInfoDto;
-import ru.vsu.cs.picstorm.dto.response.ResponsePictureDto;
 import ru.vsu.cs.picstorm.entity.*;
 import ru.vsu.cs.picstorm.repository.PictureRepository;
 import ru.vsu.cs.picstorm.repository.PublicationRepository;
@@ -33,17 +33,16 @@ public class PublicationService {
     private final PictureRepository pictureRepository;
     private final UserRepository userRepository;
 
-    public void uploadPublication(String userNickname, UploadPictureDto uploadPictureDto) {
+    public void uploadPublication(String userNickname, MultipartFile uploadPicture) {
         User user = userRepository.findByNickname(userNickname)
                 .orElseThrow(() -> new NoSuchElementException("Пользователь не существует"));
 
         Picture picture = new Picture();
-        picture.setPictureType(uploadPictureDto.getPictureType());
         picture = pictureRepository.save(picture);
 
         String publicationName = pictureStorageService.getPublicationName(picture);
         try {
-            pictureStorageService.savePicture(publicationName, uploadPictureDto.getPicture());
+            pictureStorageService.savePicture(publicationName, uploadPicture);
         } catch (Exception e) {
             pictureRepository.delete(picture);
             throw new RuntimeException("Ошибка при сохранении фото");
@@ -91,8 +90,8 @@ public class PublicationService {
         publicationInfo.setOwnerId(owner.getId());
         publicationInfo.setOwnerNickname(owner.getNickname());
 
-        ResponsePictureDto avatarDto = userService.getUserAvatar(owner);
-        publicationInfo.setOwnerAvatar(avatarDto);
+        byte[] avatar = userService.getUserAvatar(owner);
+        publicationInfo.setOwnerAvatar(avatar);
 
         if (viewer.isPresent()) {
             Optional<Reaction> reaction = reactionRepository.findByPublicationAndUser(publication, viewer.get());
@@ -101,7 +100,7 @@ public class PublicationService {
         return publicationInfo;
     }
 
-    public ResponsePictureDto getPublicationPicture(long publicationId) {
+    public byte[] getPublicationPicture(long publicationId) {
         Publication publication = publicationRepository.findById(publicationId)
                 .orElseThrow(() -> new NoSuchElementException("Публикация не существует"));
 
@@ -111,14 +110,11 @@ public class PublicationService {
 
         Picture publicationPicture = publication.getPicture();
         String pictureName = pictureStorageService.getPublicationName(publicationPicture);
-        byte[] pictureData;
         try {
-            pictureData = pictureStorageService.getPicture(pictureName);
+            return pictureStorageService.getPicture(pictureName);
         } catch (Exception e) {
             throw new RuntimeException("Ошибка при загрузке фото");
         }
-
-        return new ResponsePictureDto(publicationPicture.getPictureType(), pictureData);
     }
 
     public PublicationReactionDto setReaction(String userNickname, long publicationId, PublicationReactionDto reactionDto) {

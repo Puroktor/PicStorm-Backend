@@ -38,7 +38,7 @@ public class SubscriptionServiceTests {
         String viewerNick = "nick";
         long targetId = 1L;
         User target = User.builder().id(targetId).role(UserRole.ORDINARY).build();
-        Picture picture = new Picture(1L, PictureType.PNG, Instant.now());
+        Picture picture = new Picture(1L, Instant.now());
         User user = User.builder().id(2L).nickname("name").avatar(picture).build();
         User viewer = User.builder().id(3L).build();
         Subscription subscription = new Subscription(1L, user, target, Instant.now());
@@ -56,7 +56,6 @@ public class SubscriptionServiceTests {
         UserLineDto userDto = pageDto.getValues().get(0);
         assertEquals(user.getId(), userDto.getUserId());
         assertEquals(user.getNickname(), userDto.getNickname());
-        assertEquals(picture.getPictureType(), userDto.getAvatar().getPictureType());
         assertTrue(userDto.getSubscribed());
 
         verify(pictureStorageService, times(1)).getPicture(any());
@@ -74,7 +73,7 @@ public class SubscriptionServiceTests {
     public void getSubscriptionsForUnauthorized() throws Exception {
         long subscriberId = 1L;
         User subscriber = User.builder().id(subscriberId).role(UserRole.ORDINARY).build();
-        Picture picture = new Picture(1L, PictureType.JPEG, Instant.now());
+        Picture picture = new Picture(1L, Instant.now());
         User user = User.builder().id(2L).nickname("name").avatar(picture).build();
         Subscription subscription = new Subscription(1L, subscriber, user, Instant.now());
 
@@ -88,7 +87,6 @@ public class SubscriptionServiceTests {
         UserLineDto userDto = pageDto.getValues().get(0);
         assertEquals(user.getId(), userDto.getUserId());
         assertEquals(user.getNickname(), userDto.getNickname());
-        assertEquals(picture.getPictureType(), userDto.getAvatar().getPictureType());
         assertNull(userDto.getSubscribed());
 
         verify(pictureStorageService, times(1)).getPicture(any());

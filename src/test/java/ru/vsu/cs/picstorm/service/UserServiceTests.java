@@ -10,7 +10,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.multipart.MultipartFile;
-import ru.vsu.cs.picstorm.dto.request.UploadPictureDto;
 import ru.vsu.cs.picstorm.dto.response.PageDto;
 import ru.vsu.cs.picstorm.dto.response.UserLineDto;
 import ru.vsu.cs.picstorm.dto.response.UserProfileDto;
@@ -71,7 +70,7 @@ public class UserServiceTests {
     public void getUserProfileWithAvatar() throws Exception {
         String nickname = "name";
         long userId = 1;
-        Picture avatar = Picture.builder().pictureType(PictureType.JPEG).build();
+        Picture avatar = new Picture();
         User profileUser = User.builder().id(userId).nickname("name").role(UserRole.ORDINARY).avatar(avatar).build();
         User user = User.builder().nickname(nickname).build();
 
@@ -84,7 +83,6 @@ public class UserServiceTests {
         UserProfileDto profileDto = userService.getUserProfile(nickname, userId);
         assertEquals(profileUser.getId(), profileDto.getId());
         assertEquals(profileUser.getNickname(), profileDto.getNickname());
-        assertEquals(avatar.getPictureType(), profileDto.getAvatar().getPictureType());
         assertEquals(profileUser.getRole(), profileDto.getRole());
         assertEquals(5L, profileDto.getSubscriptionsCount());
         assertEquals(10L, profileDto.getSubscribersCount());
@@ -134,7 +132,7 @@ public class UserServiceTests {
         String input = "test";
         long targetId = 1L;
         User searcher = User.builder().id(targetId).role(UserRole.ORDINARY).build();
-        Picture picture = new Picture(1L, PictureType.PNG, Instant.now());
+        Picture picture = new Picture(1L, Instant.now());
         User user = User.builder().id(2L).nickname("name").avatar(picture).build();
         Subscription subscription = new Subscription(1L, searcher, user, Instant.now());
 
@@ -150,7 +148,6 @@ public class UserServiceTests {
         UserLineDto userDto = pageDto.getValues().get(0);
         assertEquals(user.getId(), userDto.getUserId());
         assertEquals(user.getNickname(), userDto.getNickname());
-        assertEquals(picture.getPictureType(), userDto.getAvatar().getPictureType());
         assertTrue(userDto.getSubscribed());
 
         verify(pictureStorageService, times(1)).getPicture(any());
@@ -204,7 +201,6 @@ public class UserServiceTests {
         String nickname = "name";
         String avatarName = "avatar";
         MultipartFile photo = new MockMultipartFile("file", new byte[0]);
-        UploadPictureDto pictureDto = new UploadPictureDto(PictureType.PNG, photo);
         User user = User.builder().id(1L).build();
         Picture picture = Picture.builder().id(1L).build();
 
@@ -212,7 +208,7 @@ public class UserServiceTests {
         when(pictureRepository.save(any())).thenReturn(picture);
         when(pictureStorageService.getAvatarName(picture)).thenReturn(avatarName);
 
-        userService.uploadAvatar(nickname, pictureDto);
+        userService.uploadAvatar(nickname, photo);
 
         verify(pictureRepository, times(1)).save(any());
         verify(pictureStorageService, times(1)).getAvatarName(picture);
@@ -228,7 +224,6 @@ public class UserServiceTests {
         String nickname = "name";
         String avatarName = "avatar";
         MultipartFile photo = new MockMultipartFile("file", new byte[0]);
-        UploadPictureDto pictureDto = new UploadPictureDto(PictureType.PNG, photo);
         User user = User.builder().id(1L).build();
         Picture picture = Picture.builder().id(1L).build();
 
@@ -237,7 +232,7 @@ public class UserServiceTests {
         when(pictureStorageService.getAvatarName(picture)).thenReturn(avatarName);
         doThrow(Exception.class).when(pictureStorageService).savePicture(avatarName, photo);
 
-        assertThrows(RuntimeException.class, () -> userService.uploadAvatar(nickname, pictureDto));
+        assertThrows(RuntimeException.class, () -> userService.uploadAvatar(nickname, photo));
 
         verify(pictureRepository, times(1)).save(any());
         verify(pictureRepository, times(1)).delete(picture);

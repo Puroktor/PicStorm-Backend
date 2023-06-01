@@ -13,12 +13,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
-import ru.vsu.cs.picstorm.dto.request.UploadPictureDto;
 import ru.vsu.cs.picstorm.dto.response.PageDto;
 import ru.vsu.cs.picstorm.dto.response.UserLineDto;
 import ru.vsu.cs.picstorm.dto.response.UserProfileDto;
 import ru.vsu.cs.picstorm.dto.response.UserRoleDto;
-import ru.vsu.cs.picstorm.entity.PictureType;
 import ru.vsu.cs.picstorm.service.UserService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -44,27 +42,26 @@ public class UserControllerTests {
 
     @Test
     public void uploadAvatarAsAuthorized() {
-        UploadPictureDto uploadPictureDto = new UploadPictureDto(PictureType.JPEG, new MockMultipartFile("file", new byte[0]));
-        assertThrows(AuthenticationException.class, () -> userController.uploadAvatar(uploadPictureDto, authentication));
+        MockMultipartFile picture = new MockMultipartFile("file", new byte[0]);
+        assertThrows(AuthenticationException.class, () -> userController.uploadAvatar(picture, authentication));
         verify(userService, times(0)).uploadAvatar(anyString(), any());
     }
 
     @Test
     @WithMockUser(authorities = "UPLOAD_AUTHORITY")
     public void uploadEmptyAvatar() {
-        UploadPictureDto uploadPictureDto = new UploadPictureDto(PictureType.JPEG, null);
-        assertThrows(ValidationException.class, () -> userController.uploadAvatar(uploadPictureDto, authentication));
+        assertThrows(ValidationException.class, () -> userController.uploadAvatar(null, authentication));
         verify(userService, times(0)).uploadAvatar(anyString(), any());
     }
 
     @Test
     @WithMockUser(authorities = "UPLOAD_AUTHORITY")
     public void uploadValidAvatar() {
-        UploadPictureDto uploadPictureDto = new UploadPictureDto(PictureType.JPEG, new MockMultipartFile("file", new byte[0]));
-        ResponseEntity<?> returned = userController.uploadAvatar(uploadPictureDto, authentication);
+        MockMultipartFile picture = new MockMultipartFile("file", new byte[0]);
+        ResponseEntity<?> returned = userController.uploadAvatar(picture, authentication);
 
         assertEquals(HttpStatus.CREATED, returned.getStatusCode());
-        verify(userService, times(1)).uploadAvatar(MOCK_USERNAME, uploadPictureDto);
+        verify(userService, times(1)).uploadAvatar(MOCK_USERNAME, picture);
     }
 
     @Test

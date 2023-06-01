@@ -14,7 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.vsu.cs.picstorm.dto.request.UploadPictureDto;
+import org.springframework.web.multipart.MultipartFile;
 import ru.vsu.cs.picstorm.dto.response.PageDto;
 import ru.vsu.cs.picstorm.dto.response.UserLineDto;
 import ru.vsu.cs.picstorm.dto.response.UserProfileDto;
@@ -36,10 +36,10 @@ public class UserController {
     @PostMapping("avatar")
     @PreAuthorize("hasAuthority('UPLOAD_AUTHORITY')")
     public ResponseEntity<Void> uploadAvatar(
-            @ModelAttribute @NotNull(message = "Предоставьте фото для загурзки") @Valid UploadPictureDto uploadPictureDto,
+            @RequestBody @NotNull(message = "Предоставьте фото для загурзки") @Valid MultipartFile uploadPicture,
             @Parameter(hidden = true) Authentication authentication) {
         String userNickname = authentication.getName();
-        userService.uploadAvatar(userNickname, uploadPictureDto);
+        userService.uploadAvatar(userNickname, uploadPicture);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .build();

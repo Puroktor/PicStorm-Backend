@@ -10,8 +10,11 @@ import org.springframework.data.util.Streamable;
 import org.springframework.lang.Nullable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import ru.vsu.cs.picstorm.dto.request.UploadPictureDto;
-import ru.vsu.cs.picstorm.dto.response.*;
+import org.springframework.web.multipart.MultipartFile;
+import ru.vsu.cs.picstorm.dto.response.PageDto;
+import ru.vsu.cs.picstorm.dto.response.UserLineDto;
+import ru.vsu.cs.picstorm.dto.response.UserProfileDto;
+import ru.vsu.cs.picstorm.dto.response.UserRoleDto;
 import ru.vsu.cs.picstorm.entity.*;
 import ru.vsu.cs.picstorm.repository.PictureRepository;
 import ru.vsu.cs.picstorm.repository.PublicationRepository;
@@ -50,8 +53,8 @@ public class UserService {
             UserLineDto lineDto = new UserLineDto();
             lineDto.setUserId(user.getId());
             lineDto.setNickname(user.getNickname());
-            ResponsePictureDto avatarDto = getUserAvatar(user);
-            lineDto.setAvatar(avatarDto);
+            byte[] avatar = getUserAvatar(user);
+            lineDto.setAvatar(avatar);
             if (viewingUser != null && !viewingUser.equals(user)) {
                 Optional<Subscription> subscription = subscriptionRepository.findBySubscriberAndTarget(viewingUser, user);
                 lineDto.setSubscribed(subscription.isPresent());
@@ -60,17 +63,15 @@ public class UserService {
         }).toList();
     }
 
-    public ResponsePictureDto getUserAvatar(User user) {
+    public byte[] getUserAvatar(User user) {
         Picture avatar = user.getAvatar();
         if (avatar != null) {
             String avatarName = pictureStorageService.getAvatarName(user.getAvatar());
-            byte[] avatarData;
             try {
-                avatarData = pictureStorageService.getPicture(avatarName);
+                return pictureStorageService.getPicture(avatarName);
             } catch (Exception e) {
                 throw new RuntimeException("Ошибка при загрузке аватара");
             }
-            return new ResponsePictureDto(avatar.getPictureType(), avatarData);
         }
         return null;
     }
@@ -123,8 +124,8 @@ public class UserService {
                     .orElseThrow(() -> new NoSuchElementException("Пользователь не существует"));
         }
         UserProfileDto profileDto = modelMapper.map(user, UserProfileDto.class);
-        ResponsePictureDto avatarDto = getUserAvatar(user);
-        profileDto.setAvatar(avatarDto);
+        byte[] avatar = getUserAvatar(user);
+        profileDto.setAvatar(avatar);
         if (requester != null && !requester.equals(user)) {
             Optional<Subscription> subscription = subscriptionRepository.findBySubscriberAndTarget(requester, user);
             profileDto.setSubscribed(subscription.isPresent());
@@ -136,17 +137,16 @@ public class UserService {
         return profileDto;
     }
 
-    public void uploadAvatar(String userNickname, UploadPictureDto uploadPictureDto) {
+    public void uploadAvatar(String userNickname, MultipartFile uploadPicture) {
         User user = userRepository.findByNickname(userNickname)
                 .orElseThrow(() -> new NoSuchElementException("Пользователь не существует"));
 
         Picture newAvatar = new Picture();
-        newAvatar.setPictureType(uploadPictureDto.getPictureType());
         newAvatar = pictureRepository.save(newAvatar);
 
         String avatarName = pictureStorageService.getAvatarName(newAvatar);
         try {
-            pictureStorageService.savePicture(avatarName, uploadPictureDto.getPicture());
+            pictureStorageService.savePicture(avatarName, uploadPicture);
         } catch (Exception e) {
             pictureRepository.delete(newAvatar);
             throw new RuntimeException("Ошибка при сохранении аватара");
