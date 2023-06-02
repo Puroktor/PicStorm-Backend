@@ -20,6 +20,7 @@ import ru.vsu.cs.picstorm.dto.request.PublicationReactionDto;
 import ru.vsu.cs.picstorm.dto.request.SortConstraint;
 import ru.vsu.cs.picstorm.dto.request.UserConstraint;
 import ru.vsu.cs.picstorm.dto.response.PageDto;
+import ru.vsu.cs.picstorm.dto.response.PictureDto;
 import ru.vsu.cs.picstorm.dto.response.PublicationInfoDto;
 import ru.vsu.cs.picstorm.service.PublicationService;
 
@@ -72,7 +73,7 @@ public class PublicationController {
 
     @Operation(summary = "Returns publication picture by id")
     @GetMapping("{publicationId}/picture")
-    public ResponseEntity<byte[]> getPublicationPicture(@PathVariable long publicationId) {
+    public ResponseEntity<PictureDto> getPublicationPicture(@PathVariable long publicationId) {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(publicationService.getPublicationPicture(publicationId));

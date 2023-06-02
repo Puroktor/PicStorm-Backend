@@ -11,6 +11,7 @@ import ru.vsu.cs.picstorm.dto.request.PublicationReactionDto;
 import ru.vsu.cs.picstorm.dto.request.SortConstraint;
 import ru.vsu.cs.picstorm.dto.request.UserConstraint;
 import ru.vsu.cs.picstorm.dto.response.PageDto;
+import ru.vsu.cs.picstorm.dto.response.PictureDto;
 import ru.vsu.cs.picstorm.dto.response.PublicationInfoDto;
 import ru.vsu.cs.picstorm.entity.*;
 import ru.vsu.cs.picstorm.repository.PictureRepository;
@@ -92,9 +93,6 @@ public class PublicationService {
         publicationInfo.setOwnerId(owner.getId());
         publicationInfo.setOwnerNickname(owner.getNickname());
 
-        byte[] avatar = userService.getUserAvatar(owner);
-        publicationInfo.setOwnerAvatar(avatar);
-
         if (viewer.isPresent()) {
             Optional<Reaction> reaction = reactionRepository.findByPublicationAndUser(publication, viewer.get());
             publicationInfo.setUserReaction(reaction.map(Reaction::getType).orElse(null));
@@ -102,7 +100,7 @@ public class PublicationService {
         return publicationInfo;
     }
 
-    public byte[] getPublicationPicture(long publicationId) {
+    public PictureDto getPublicationPicture(long publicationId) {
         Publication publication = publicationRepository.findById(publicationId)
                 .orElseThrow(() -> new NoSuchElementException("Публикация не существует"));
 
@@ -113,7 +111,8 @@ public class PublicationService {
         Picture publicationPicture = publication.getPicture();
         String pictureName = pictureStorageService.getPublicationName(publicationPicture);
         try {
-            return pictureStorageService.getPicture(pictureName);
+            byte[] picture = pictureStorageService.getPicture(pictureName);
+            return new PictureDto(picture);
         } catch (Exception e) {
             throw new RuntimeException("Ошибка при загрузке фото");
         }

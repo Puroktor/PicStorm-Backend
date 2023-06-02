@@ -32,6 +32,7 @@ public class SecurityConfig implements WebMvcConfigurer {
         http.authorizeHttpRequests().requestMatchers(
                 "/api/auth/**",
                 "/api/user/**/profile**",
+                "/api/user/**/avatar**",
                 "/api/user/search**",
                 "/api/publication/**/picture**",
                 "/api/publication/feed**",

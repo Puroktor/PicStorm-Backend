@@ -17,6 +17,7 @@ import ru.vsu.cs.picstorm.dto.request.PublicationReactionDto;
 import ru.vsu.cs.picstorm.dto.request.SortConstraint;
 import ru.vsu.cs.picstorm.dto.request.UserConstraint;
 import ru.vsu.cs.picstorm.dto.response.PageDto;
+import ru.vsu.cs.picstorm.dto.response.PictureDto;
 import ru.vsu.cs.picstorm.dto.response.PublicationInfoDto;
 import ru.vsu.cs.picstorm.entity.ReactionType;
 import ru.vsu.cs.picstorm.service.PublicationService;
@@ -132,11 +133,12 @@ public class PublicationControllerTests {
     public void getPublicationPictureWithValidParams() {
         long publicationId = 0;
         byte[] picture = new byte[0];
-        when(publicationService.getPublicationPicture(publicationId)).thenReturn(picture);
-        ResponseEntity<byte[]> returned = publicationController.getPublicationPicture(publicationId);
+        PictureDto pictureDto = new PictureDto(picture);
+        when(publicationService.getPublicationPicture(publicationId)).thenReturn(pictureDto);
+        ResponseEntity<PictureDto> returned = publicationController.getPublicationPicture(publicationId);
 
         assertEquals(HttpStatus.OK, returned.getStatusCode());
-        assertArrayEquals(picture, returned.getBody());
+        assertEquals(pictureDto, returned.getBody());
         verify(publicationService, times(1)).getPublicationPicture(publicationId);
     }
 

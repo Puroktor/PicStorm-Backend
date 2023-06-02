@@ -7,6 +7,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.context.ActiveProfiles;
 import ru.vsu.cs.picstorm.dto.request.PublicationReactionDto;
+import ru.vsu.cs.picstorm.dto.response.PictureDto;
 import ru.vsu.cs.picstorm.entity.*;
 import ru.vsu.cs.picstorm.repository.PictureRepository;
 import ru.vsu.cs.picstorm.repository.PublicationRepository;
@@ -95,9 +96,9 @@ public class PublicationServiceTests {
         when(pictureStorageService.getPublicationName(any())).thenReturn(pictureName);
         when(pictureStorageService.getPicture(pictureName)).thenReturn(pictureData);
 
-        byte[] returnedPublicationData = publicationService.getPublicationPicture(publicationId);
+        PictureDto returnedPicture = publicationService.getPublicationPicture(publicationId);
 
-        assertArrayEquals(returnedPublicationData, pictureData);
+        assertArrayEquals(returnedPicture.getPicture(), pictureData);
         verify(pictureStorageService, times(1)).getPicture(pictureName);
     }
 

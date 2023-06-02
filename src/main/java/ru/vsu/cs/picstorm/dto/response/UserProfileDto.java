@@ -10,7 +10,6 @@ import ru.vsu.cs.picstorm.entity.UserRole;
 @AllArgsConstructor
 public class UserProfileDto {
     private Long id;
-    private byte[] avatar;
     private String nickname;
     private UserRole role;
     private Boolean subscribed;

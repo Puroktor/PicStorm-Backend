@@ -44,7 +44,7 @@ public class UserServiceTests {
     private UserService userService;
 
     @Test
-    public void getUserProfileWithoutAvatar() throws Exception {
+    public void getUserProfile() throws Exception {
         long userId = 1;
         User profileUser = User.builder().id(userId).nickname("name").role(UserRole.ORDINARY).build();
 
@@ -55,38 +55,12 @@ public class UserServiceTests {
         UserProfileDto profileDto = userService.getUserProfile(null, userId);
         assertEquals(profileUser.getId(), profileDto.getId());
         assertEquals(profileUser.getNickname(), profileDto.getNickname());
-        assertNull(profileDto.getAvatar());
         assertEquals(profileUser.getRole(), profileDto.getRole());
         assertEquals(5L, profileDto.getSubscriptionsCount());
         assertEquals(10L, profileDto.getSubscribersCount());
         assertNull(profileDto.getSubscribed());
 
         verify(pictureStorageService, times(0)).getPicture(any());
-    }
-
-    @Test
-    public void getUserProfileWithAvatar() throws Exception {
-        String nickname = "name";
-        long userId = 1;
-        Picture avatar = new Picture();
-        User profileUser = User.builder().id(userId).nickname("name").role(UserRole.ORDINARY).avatar(avatar).build();
-        User user = User.builder().nickname(nickname).build();
-
-        when(userRepository.findByNickname(nickname)).thenReturn(Optional.of(user));
-        when(userRepository.findById(userId)).thenReturn(Optional.of(profileUser));
-        when(subscriptionRepository.countBySubscriber(profileUser)).thenReturn(5L);
-        when(subscriptionRepository.countByTarget(profileUser)).thenReturn(10L);
-        when(subscriptionRepository.findBySubscriberAndTarget(user, profileUser)).thenReturn(Optional.of(new Subscription()));
-
-        UserProfileDto profileDto = userService.getUserProfile(nickname, userId);
-        assertEquals(profileUser.getId(), profileDto.getId());
-        assertEquals(profileUser.getNickname(), profileDto.getNickname());
-        assertEquals(profileUser.getRole(), profileDto.getRole());
-        assertEquals(5L, profileDto.getSubscriptionsCount());
-        assertEquals(10L, profileDto.getSubscribersCount());
-        assertTrue(profileDto.getSubscribed());
-
-        verify(pictureStorageService, times(1)).getPicture(any());
     }
 
     @Test
@@ -118,7 +92,6 @@ public class UserServiceTests {
         UserLineDto userDto = pageDto.getValues().get(0);
         assertEquals(user.getId(), userDto.getUserId());
         assertEquals(user.getNickname(), userDto.getNickname());
-        assertNull(userDto.getAvatar());
         assertNull(userDto.getSubscribed());
 
         verify(pictureStorageService, times(0)).getPicture(any());
@@ -147,8 +120,6 @@ public class UserServiceTests {
         assertEquals(user.getId(), userDto.getUserId());
         assertEquals(user.getNickname(), userDto.getNickname());
         assertTrue(userDto.getSubscribed());
-
-        verify(pictureStorageService, times(1)).getPicture(any());
     }
 
     @Test

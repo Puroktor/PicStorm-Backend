@@ -14,10 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.vsu.cs.picstorm.dto.response.PageDto;
-import ru.vsu.cs.picstorm.dto.response.UserLineDto;
-import ru.vsu.cs.picstorm.dto.response.UserProfileDto;
-import ru.vsu.cs.picstorm.dto.response.UserRoleDto;
+import ru.vsu.cs.picstorm.dto.response.*;
 import ru.vsu.cs.picstorm.service.UserService;
 
 import java.util.Optional;
@@ -44,6 +41,13 @@ public class UserController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .build();
+    }
+    @Operation(summary = "Retrieves user avatar")
+    @GetMapping("{userId}/avatar")
+    public ResponseEntity<PictureDto> getAvatar(@Parameter(description = "Avatar owner ID") @PathVariable("userId") long userId) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(userService.getUserAvatar(userId));
     }
 
     @Operation(summary = "Finds users by part of nickname")

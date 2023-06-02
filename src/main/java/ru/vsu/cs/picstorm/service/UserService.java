@@ -11,10 +11,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.vsu.cs.picstorm.dto.response.PageDto;
-import ru.vsu.cs.picstorm.dto.response.UserLineDto;
-import ru.vsu.cs.picstorm.dto.response.UserProfileDto;
-import ru.vsu.cs.picstorm.dto.response.UserRoleDto;
+import ru.vsu.cs.picstorm.dto.response.*;
 import ru.vsu.cs.picstorm.entity.*;
 import ru.vsu.cs.picstorm.repository.PictureRepository;
 import ru.vsu.cs.picstorm.repository.PublicationRepository;
@@ -53,8 +50,6 @@ public class UserService {
             UserLineDto lineDto = new UserLineDto();
             lineDto.setUserId(user.getId());
             lineDto.setNickname(user.getNickname());
-            byte[] avatar = getUserAvatar(user);
-            lineDto.setAvatar(avatar);
             if (viewingUser != null && !viewingUser.equals(user)) {
                 Optional<Subscription> subscription = subscriptionRepository.findBySubscriberAndTarget(viewingUser, user);
                 lineDto.setSubscribed(subscription.isPresent());
@@ -63,17 +58,23 @@ public class UserService {
         }).toList();
     }
 
-    public byte[] getUserAvatar(User user) {
+    public PictureDto getUserAvatar(long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("Пользователь не существует"));
+        if (user.getRole() == UserRole.BANNED) {
+            throw new AccessDeniedException("Пользователь заблокирован");
+        }
         Picture avatar = user.getAvatar();
         if (avatar != null) {
             String avatarName = pictureStorageService.getAvatarName(user.getAvatar());
             try {
-                return pictureStorageService.getPicture(avatarName);
+                byte[] picture = pictureStorageService.getPicture(avatarName);
+                return new PictureDto(picture);
             } catch (Exception e) {
-                throw new RuntimeException("Ошибка при загрузке аватара");
+                throw new RuntimeException("Ошибка при получении аватара");
             }
         }
-        return null;
+        return new PictureDto();
     }
 
     @Transactional
@@ -125,8 +126,6 @@ public class UserService {
                     .orElseThrow(() -> new NoSuchElementException("Пользователь не существует"));
         }
         UserProfileDto profileDto = modelMapper.map(user, UserProfileDto.class);
-        byte[] avatar = getUserAvatar(user);
-        profileDto.setAvatar(avatar);
         if (requester != null && !requester.equals(user)) {
             Optional<Subscription> subscription = subscriptionRepository.findBySubscriberAndTarget(requester, user);
             profileDto.setSubscribed(subscription.isPresent());
