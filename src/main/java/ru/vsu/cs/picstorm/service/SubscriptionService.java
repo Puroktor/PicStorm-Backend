@@ -5,7 +5,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import ru.vsu.cs.picstorm.dto.response.PageDto;
@@ -59,7 +58,7 @@ public class SubscriptionService {
             viewingUser = userRepository.findByNickname(viewingUserNickname)
                     .orElseThrow(() -> new NoSuchElementException("Пользователь не существует"));
         }
-        Pageable pageable = PageRequest.of(index, size, Sort.by("nickname"));
+        Pageable pageable = PageRequest.of(index, size);
         Page<User> subscriptionUsersPage = findUsersFunction.apply(user, pageable);
         List<UserLineDto> subscribersDtoList = userService.mapUserResultListForView(viewingUser, subscriptionUsersPage);
         return new PageDto<>(subscribersDtoList, index, size, subscriptionUsersPage.isLast());
