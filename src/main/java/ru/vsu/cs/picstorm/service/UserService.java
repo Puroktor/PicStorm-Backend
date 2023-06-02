@@ -10,7 +10,6 @@ import org.springframework.data.util.Streamable;
 import org.springframework.lang.Nullable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import ru.vsu.cs.picstorm.dto.response.PageDto;
 import ru.vsu.cs.picstorm.dto.response.UserLineDto;
 import ru.vsu.cs.picstorm.dto.response.UserProfileDto;
@@ -137,7 +136,7 @@ public class UserService {
         return profileDto;
     }
 
-    public void uploadAvatar(String userNickname, MultipartFile uploadPicture) {
+    public void uploadAvatar(String userNickname, byte[] uploadPicture) {
         User user = userRepository.findByNickname(userNickname)
                 .orElseThrow(() -> new NoSuchElementException("Пользователь не существует"));
 

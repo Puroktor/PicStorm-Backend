@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,8 +15,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import ru.vsu.cs.picstorm.dto.request.*;
+import ru.vsu.cs.picstorm.dto.request.DateConstraint;
+import ru.vsu.cs.picstorm.dto.request.PublicationReactionDto;
+import ru.vsu.cs.picstorm.dto.request.SortConstraint;
+import ru.vsu.cs.picstorm.dto.request.UserConstraint;
 import ru.vsu.cs.picstorm.dto.response.PageDto;
 import ru.vsu.cs.picstorm.dto.response.PublicationInfoDto;
 import ru.vsu.cs.picstorm.service.PublicationService;
@@ -29,13 +32,15 @@ import java.util.Optional;
 @Tag(name = "Publication API", description = "Allows to upload, view, ban and delete publications")
 @SecurityRequirement(name = "JWT Authentication")
 public class PublicationController {
+    public final static int MAX_PUBLICATION_PICTURE_SIZE = 1024 * 1024;
     private final PublicationService publicationService;
 
     @Operation(summary = "Uploads new publication")
     @PostMapping
     @PreAuthorize("hasAuthority('UPLOAD_AUTHORITY')")
     public ResponseEntity<Void> uploadPublication(
-            @RequestBody @NotNull(message = "Предоставьте фото для загурзки") @Valid MultipartFile uploadPicture,
+            @RequestBody @NotNull(message = "Предоставьте фото для загурзки")
+            @Size(min = 1, max = MAX_PUBLICATION_PICTURE_SIZE, message = "Неверный размер фото для загрузки") byte[] uploadPicture,
             @Parameter(hidden = true) Authentication authentication) {
         String userNickname = authentication.getName();
         publicationService.uploadPublication(userNickname, uploadPicture);

@@ -19,8 +19,8 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class JwtTokenFilter extends OncePerRequestFilter {
+    private final static String AUTH_HEADER_PREFIX = "Bearer ";
     private final JwtTokenProvider jwtTokenProvider;
-    private final String AUTH_HEADER_PREFIX = "Bearer ";
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,

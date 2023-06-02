@@ -1,6 +1,5 @@
 package ru.vsu.cs.picstorm.service;
 
-import org.springframework.web.multipart.MultipartFile;
 import ru.vsu.cs.picstorm.entity.Picture;
 
 /**
@@ -11,7 +10,7 @@ public interface PictureStorageService {
     /**
     * Saves picture in remote storage
     */
-    void savePicture(String name, MultipartFile pictureFile) throws Exception;
+    void savePicture(String name, byte[] picture) throws Exception;
 
     /**
      * Retrieves picture from remote storage

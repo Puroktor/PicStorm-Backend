@@ -2,14 +2,16 @@ package ru.vsu.cs.picstorm.service;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.*;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.util.IOUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import ru.vsu.cs.picstorm.entity.Picture;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 @Service
@@ -25,8 +27,8 @@ public class YandexCloudPictureStorageService implements PictureStorageService {
     private final AmazonS3 s3Client;
 
     @Override
-    public void savePicture(String name, MultipartFile pictureFile) throws IOException, AmazonClientException {
-        s3Client.putObject(bucketName, name, pictureFile.getInputStream(), new ObjectMetadata());
+    public void savePicture(String name, byte[] picture) throws AmazonClientException {
+        s3Client.putObject(bucketName, name, new ByteArrayInputStream(picture), new ObjectMetadata());
     }
 
     @Override

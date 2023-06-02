@@ -4,9 +4,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +14,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import ru.vsu.cs.picstorm.dto.response.PageDto;
 import ru.vsu.cs.picstorm.dto.response.UserLineDto;
 import ru.vsu.cs.picstorm.dto.response.UserProfileDto;
@@ -30,13 +29,15 @@ import java.util.Optional;
 @Tag(name = "User API", description = "Allows to view profiles, search for users and change roles")
 @SecurityRequirement(name = "JWT Authentication")
 public class UserController {
+    public final static int MAX_AVATAR_PICTURE_SIZE = 1024 * 100;
     private final UserService userService;
 
     @Operation(summary = "Uploads new avatar")
     @PostMapping("avatar")
     @PreAuthorize("hasAuthority('UPLOAD_AUTHORITY')")
     public ResponseEntity<Void> uploadAvatar(
-            @RequestBody @NotNull(message = "Предоставьте фото для загурзки") @Valid MultipartFile uploadPicture,
+            @RequestBody @NotNull(message = "Предоставьте фото для загурзки")
+            @Size(min = 1, max = MAX_AVATAR_PICTURE_SIZE, message = "Неверный размер фото для загрузки") byte[] uploadPicture,
             @Parameter(hidden = true) Authentication authentication) {
         String userNickname = authentication.getName();
         userService.uploadAvatar(userNickname, uploadPicture);

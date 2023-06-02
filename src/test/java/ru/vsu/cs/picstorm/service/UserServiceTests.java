@@ -6,10 +6,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.web.multipart.MultipartFile;
 import ru.vsu.cs.picstorm.dto.response.PageDto;
 import ru.vsu.cs.picstorm.dto.response.UserLineDto;
 import ru.vsu.cs.picstorm.dto.response.UserProfileDto;
@@ -200,7 +198,7 @@ public class UserServiceTests {
     public void uploadAvatar() throws Exception {
         String nickname = "name";
         String avatarName = "avatar";
-        MultipartFile photo = new MockMultipartFile("file", new byte[0]);
+        byte[] photo = new byte[] {0};
         User user = User.builder().id(1L).build();
         Picture picture = Picture.builder().id(1L).build();
 
@@ -223,7 +221,7 @@ public class UserServiceTests {
     public void uploadPublicationWithExceptionDuringLoading() throws Exception {
         String nickname = "name";
         String avatarName = "avatar";
-        MultipartFile photo = new MockMultipartFile("file", new byte[0]);
+        byte[] photo = new byte[] {0};
         User user = User.builder().id(1L).build();
         Picture picture = Picture.builder().id(1L).build();
 

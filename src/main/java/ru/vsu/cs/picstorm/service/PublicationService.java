@@ -6,8 +6,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-import ru.vsu.cs.picstorm.dto.request.*;
+import ru.vsu.cs.picstorm.dto.request.DateConstraint;
+import ru.vsu.cs.picstorm.dto.request.PublicationReactionDto;
+import ru.vsu.cs.picstorm.dto.request.SortConstraint;
+import ru.vsu.cs.picstorm.dto.request.UserConstraint;
 import ru.vsu.cs.picstorm.dto.response.PageDto;
 import ru.vsu.cs.picstorm.dto.response.PublicationInfoDto;
 import ru.vsu.cs.picstorm.entity.*;
@@ -33,7 +35,7 @@ public class PublicationService {
     private final PictureRepository pictureRepository;
     private final UserRepository userRepository;
 
-    public void uploadPublication(String userNickname, MultipartFile uploadPicture) {
+    public void uploadPublication(String userNickname, byte[] uploadPicture) {
         User user = userRepository.findByNickname(userNickname)
                 .orElseThrow(() -> new NoSuchElementException("Пользователь не существует"));
 

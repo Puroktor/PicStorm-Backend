@@ -8,7 +8,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -99,7 +98,7 @@ public class PublicationControllerTests {
 
     @Test
     public void uploadPublicationAsAuthorized() {
-        MockMultipartFile picture = new MockMultipartFile("file", new byte[0]);
+        byte[] picture = new byte[] {0};
         assertThrows(AuthenticationException.class, () -> publicationController.uploadPublication(picture, authentication));
         verify(publicationService, times(0)).uploadPublication(anyString(), any());
     }
@@ -113,8 +112,16 @@ public class PublicationControllerTests {
 
     @Test
     @WithMockUser(authorities = "UPLOAD_AUTHORITY")
+    public void uploadTooBigPublication() {
+        byte[] picture = new byte[PublicationController.MAX_PUBLICATION_PICTURE_SIZE + 1];
+        assertThrows(ValidationException.class, () -> publicationController.uploadPublication(picture, authentication));
+        verify(publicationService, times(0)).uploadPublication(anyString(), any());
+    }
+
+    @Test
+    @WithMockUser(authorities = "UPLOAD_AUTHORITY")
     public void uploadValidPublication() {
-        MockMultipartFile uploadPicture = new MockMultipartFile("file", new byte[0]);
+        byte[] uploadPicture = new byte[] {0};
         ResponseEntity<?> returned = publicationController.uploadPublication(uploadPicture, authentication);
 
         assertEquals(HttpStatus.CREATED, returned.getStatusCode());

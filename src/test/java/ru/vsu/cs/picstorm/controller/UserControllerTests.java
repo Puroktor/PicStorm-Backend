@@ -8,7 +8,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -42,7 +41,7 @@ public class UserControllerTests {
 
     @Test
     public void uploadAvatarAsAuthorized() {
-        MockMultipartFile picture = new MockMultipartFile("file", new byte[0]);
+        byte[] picture = new byte[] {0};
         assertThrows(AuthenticationException.class, () -> userController.uploadAvatar(picture, authentication));
         verify(userService, times(0)).uploadAvatar(anyString(), any());
     }
@@ -56,8 +55,16 @@ public class UserControllerTests {
 
     @Test
     @WithMockUser(authorities = "UPLOAD_AUTHORITY")
+    public void uploadTooBigAvatar() {
+        byte[] picture = new byte[UserController.MAX_AVATAR_PICTURE_SIZE + 1];
+        assertThrows(ValidationException.class, () -> userController.uploadAvatar(picture, authentication));
+        verify(userService, times(0)).uploadAvatar(anyString(), any());
+    }
+
+    @Test
+    @WithMockUser(authorities = "UPLOAD_AUTHORITY")
     public void uploadValidAvatar() {
-        MockMultipartFile picture = new MockMultipartFile("file", new byte[0]);
+        byte[] picture = new byte[] {0};
         ResponseEntity<?> returned = userController.uploadAvatar(picture, authentication);
 
         assertEquals(HttpStatus.CREATED, returned.getStatusCode());
