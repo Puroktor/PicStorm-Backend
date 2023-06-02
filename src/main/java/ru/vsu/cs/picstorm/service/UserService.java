@@ -154,11 +154,11 @@ public class UserService {
         }
 
         Picture oldAvatar = user.getAvatar();
-        if (oldAvatar!= null){
-            removeAvatar(oldAvatar);
-        }
         user.setAvatar(newAvatar);
         userRepository.save(user);
+        if (oldAvatar!= null) {
+            removeAvatar(oldAvatar);
+        }
     }
 
     private void removeAvatar(Picture oldAvatar) {
