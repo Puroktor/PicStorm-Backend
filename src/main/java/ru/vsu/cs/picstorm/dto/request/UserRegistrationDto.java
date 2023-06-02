@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserRegistrationDto {
     @NotBlank(message = "Введите ваше имя")
-    @Size(max = 50, message = "Длиина вашего имени должна быть <= 50 символов")
+    @Size(max = 20, message = "Длиина вашего имени должна быть <= 20 символов")
     private String nickname;
 
     @NotBlank(message = "Введите ваш пароль")

@@ -29,7 +29,7 @@ public class User extends EntityWithId {
     @Nullable
     private Picture avatar;
     @NotBlank(message = "Enter user nickname")
-    @Size(max = 50, message = "User nickname length must be <= 50 characters")
+    @Size(max = 20, message = "User nickname length must be <= 20 characters")
     @Column(unique = true)
     private String nickname;
     @NotBlank(message = "Enter your email")

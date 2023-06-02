@@ -10,6 +10,7 @@ import org.springframework.data.util.Streamable;
 import org.springframework.lang.Nullable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.vsu.cs.picstorm.dto.response.PageDto;
 import ru.vsu.cs.picstorm.dto.response.UserLineDto;
 import ru.vsu.cs.picstorm.dto.response.UserProfileDto;
@@ -75,6 +76,7 @@ public class UserService {
         return null;
     }
 
+    @Transactional
     public UserRoleDto banUser(String requesterUsername, Long userId) {
         userRepository.findByNickname(requesterUsername)
                 .orElseThrow(() -> new NoSuchElementException("Пользователь не существует"));
