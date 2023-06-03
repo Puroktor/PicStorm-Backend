@@ -136,28 +136,4 @@ public class AuthServiceTests {
         assertThrows(AccessDeniedException.class, () -> authService.loginUser(loginDto));
     }
 
-    @Test
-    public void refreshTokenForBannedUser() {
-        String refreshToken = "name";
-        String name = "pass";
-        User user = User.builder().role(UserRole.BANNED).build();
-        when(jwtTokenProvider.getUsernameFromJwt(refreshToken)).thenReturn(name);
-        when(userRepository.findByNickname(name)).thenReturn(Optional.of(user));
-
-        assertThrows(AccessDeniedException.class, () -> authService.refreshToken(refreshToken));
-    }
-
-    @Test
-    public void refreshToken() {
-        String refresh = "name";
-        String name = "pass";
-        User user = User.builder().role(UserRole.ORDINARY).build();
-        when(jwtTokenProvider.getUsernameFromJwt(refresh)).thenReturn(name);
-        when(userRepository.findByNickname(name)).thenReturn(Optional.of(user));
-
-        JwtTokenDto tokensDto = authService.refreshToken(refresh);
-
-        assertEquals(accessToken, tokensDto.getAccessToken());
-    }
-
 }

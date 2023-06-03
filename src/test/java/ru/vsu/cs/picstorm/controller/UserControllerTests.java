@@ -12,10 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
-import ru.vsu.cs.picstorm.dto.response.PageDto;
-import ru.vsu.cs.picstorm.dto.response.UserLineDto;
-import ru.vsu.cs.picstorm.dto.response.UserProfileDto;
-import ru.vsu.cs.picstorm.dto.response.UserRoleDto;
+import ru.vsu.cs.picstorm.dto.response.*;
 import ru.vsu.cs.picstorm.service.UserService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -157,5 +154,19 @@ public class UserControllerTests {
     public void changeAdminRoleWithoutAuthority() {
         assertThrows(AuthenticationException.class, () -> userController.banUser(0, authentication));
         verify(userService, times(0)).changeAdminRole(anyString(), anyLong());
+    }
+
+    @Test
+    public void getUserAvatarWithValidParams() {
+        long userId = 0;
+        byte[] picture = new byte[0];
+        PictureDto pictureDto = new PictureDto(picture);
+        when(userService.getUserAvatar(userId)).thenReturn(pictureDto);
+
+        ResponseEntity<?> returned = userController.getAvatar(userId);
+
+        assertEquals(HttpStatus.OK, returned.getStatusCode());
+        assertEquals(pictureDto, returned.getBody());
+        verify(userService, times(1)).getUserAvatar(userId);
     }
 }

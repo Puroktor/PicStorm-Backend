@@ -41,7 +41,7 @@ public class PublicationServiceTests {
     public void uploadPublication() throws Exception {
         String nickname = "name";
         String publicationName = "publication";
-        byte[] photo = new byte[] {0};
+        byte[] photo = new byte[]{0};
         User user = User.builder().id(1L).build();
         Picture picture = Picture.builder().id(1L).build();
 
@@ -66,7 +66,7 @@ public class PublicationServiceTests {
     public void uploadPublicationWithExceptionDuringLoading() throws Exception {
         String nickname = "name";
         String publicationName = "publication";
-        byte[] photo = new byte[] {0};
+        byte[] photo = new byte[]{0};
         User user = User.builder().id(1L).build();
         Picture picture = Picture.builder().id(1L).build();
 
@@ -139,6 +139,30 @@ public class PublicationServiceTests {
             assertEquals(1L, publ.getRating());
             return true;
         }));
+    }
+
+    @Test
+    public void removeLikeReaction() {
+        long publicationId = 1L;
+        String nickname = "nickname";
+        User user = User.builder().id(1L).build();
+        Publication publication = Publication.builder().id(publicationId).state(PublicationState.VISIBLE).rating(1L).build();
+        Reaction oldReaction = Reaction.builder().type(ReactionType.LIKE).build();
+        PublicationReactionDto reactionDto = new PublicationReactionDto(null);
+
+        when(userRepository.findByNickname(nickname)).thenReturn(Optional.of(user));
+        when(publicationRepository.findById(publicationId)).thenReturn(Optional.of(publication));
+        when(reactionRepository.findByPublicationAndUser(publication, user)).thenReturn(Optional.of(oldReaction));
+        when(reactionRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
+
+        publicationService.setReaction(nickname, publicationId, reactionDto);
+
+        verify(reactionRepository, times(1)).save(any());
+        verify(publicationRepository, times(1)).save(argThat(publ -> {
+            assertEquals(0L, publ.getRating());
+            return true;
+        }));
+
     }
 
     @Test

@@ -125,22 +125,4 @@ public class AuthControllerTests {
         assertThrows(ValidationException.class, () -> authController.loginUser(loginDto));
         verify(authService, times(0)).loginUser(any());
     }
-
-    @Test
-    public void refreshValidToken() {
-        String refreshToken = "refreshToken";
-        JwtTokenDto jwtTokenDto = new JwtTokenDto("access");
-        when(authService.refreshToken(refreshToken)).thenReturn(jwtTokenDto);
-        ResponseEntity<JwtTokenDto> returned = authController.refreshToken(refreshToken);
-
-        assertEquals(HttpStatus.OK, returned.getStatusCode());
-        assertEquals(jwtTokenDto, returned.getBody());
-        verify(authService, times(1)).refreshToken(refreshToken);
-    }
-
-    @Test
-    public void refreshBlankToken() {
-        assertThrows(ValidationException.class, () -> authController.refreshToken(""));
-        verify(authService, times(0)).refreshToken(any());
-    }
 }

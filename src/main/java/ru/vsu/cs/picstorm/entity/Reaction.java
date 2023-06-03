@@ -1,7 +1,6 @@
 package ru.vsu.cs.picstorm.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -14,11 +13,11 @@ import java.time.Instant;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Reaction extends EntityWithId {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotNull(message = "Введите тип реакции")
     private ReactionType type;
     @ManyToOne
     @JoinColumn(name = "publication_id", nullable = false)

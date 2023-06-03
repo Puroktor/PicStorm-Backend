@@ -19,6 +19,7 @@ import ru.vsu.cs.picstorm.repository.PublicationRepository;
 import ru.vsu.cs.picstorm.repository.ReactionRepository;
 import ru.vsu.cs.picstorm.repository.UserRepository;
 import ru.vsu.cs.picstorm.repository.specification.PublicationFeedSpecification;
+import ru.vsu.cs.picstorm.util.PublicationRatingUtils;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -135,12 +136,12 @@ public class PublicationService {
         Reaction reaction;
         if (optionalReaction.isPresent()) {
             reaction = optionalReaction.get();
-            ratingChange = newReaction.calculateRatingChange(reaction.getType());
+            ratingChange = PublicationRatingUtils.calculateRatingChange(reaction.getType(), newReaction);
             reaction.setType(newReaction);
             reaction.setCreated(Instant.now());
         } else {
             reaction = new Reaction(null, newReaction, publication, user, null);
-            ratingChange = newReaction.calculateRatingChange(null);
+            ratingChange = PublicationRatingUtils.calculateRatingChange(null, newReaction);
         }
         reaction = reactionRepository.save(reaction);
         publication.setRating(publication.getRating() + ratingChange);

@@ -8,10 +8,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.context.ActiveProfiles;
-import ru.vsu.cs.picstorm.dto.response.PageDto;
-import ru.vsu.cs.picstorm.dto.response.UserLineDto;
-import ru.vsu.cs.picstorm.dto.response.UserProfileDto;
-import ru.vsu.cs.picstorm.dto.response.UserRoleDto;
+import ru.vsu.cs.picstorm.dto.response.*;
 import ru.vsu.cs.picstorm.entity.*;
 import ru.vsu.cs.picstorm.repository.PictureRepository;
 import ru.vsu.cs.picstorm.repository.PublicationRepository;
@@ -208,5 +205,31 @@ public class UserServiceTests {
         verify(pictureStorageService, times(1)).getAvatarName(picture);
         verify(pictureStorageService, times(1)).savePicture(avatarName, photo);
         verify(userRepository, times(0)).save(any());
+    }
+
+    @Test
+    public void getAvatar() throws Exception {
+        long userId = 1L;
+        String pictureName = "picture";
+        byte[] pictureData = new byte[10];
+        Picture picture = new Picture();
+        User user = User.builder().id(userId).avatar(picture).role(UserRole.ORDINARY).build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(pictureStorageService.getAvatarName(any())).thenReturn(pictureName);
+        when(pictureStorageService.getPicture(pictureName)).thenReturn(pictureData);
+
+        PictureDto returnedPicture = userService.getUserAvatar(userId);
+
+        assertArrayEquals(returnedPicture.getPicture(), pictureData);
+        verify(pictureStorageService, times(1)).getPicture(pictureName);
+    }
+
+    @Test
+    public void getAvatarOfBanned() {
+        long userId = 1L;
+        User user = User.builder().id(userId).role(UserRole.BANNED).build();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        assertThrows(AccessDeniedException.class, () -> userService.getUserAvatar(userId));
     }
 }

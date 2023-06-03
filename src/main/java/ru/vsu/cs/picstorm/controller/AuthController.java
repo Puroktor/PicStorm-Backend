@@ -4,16 +4,15 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.vsu.cs.picstorm.dto.response.JwtTokenDto;
 import ru.vsu.cs.picstorm.dto.request.UserLoginDto;
 import ru.vsu.cs.picstorm.dto.request.UserRegistrationDto;
+import ru.vsu.cs.picstorm.dto.response.JwtTokenDto;
 import ru.vsu.cs.picstorm.service.AuthService;
 
 @RestController
@@ -42,14 +41,5 @@ public class AuthController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(authService.loginUser(userLoginDto));
-    }
-
-    @Operation(summary = "Returns JWT access and refresh tokens if OK")
-    @PostMapping("token/refresh")
-    public ResponseEntity<JwtTokenDto> refreshToken(@RequestBody @NotBlank(message = "Предоставьте токен")
-                                                     @Parameter(name = "Your login info") String refreshToken) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(authService.refreshToken(refreshToken));
     }
 }

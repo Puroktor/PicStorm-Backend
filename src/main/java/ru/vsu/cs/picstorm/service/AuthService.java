@@ -49,13 +49,6 @@ public class AuthService {
         return createTokensForUser(dbUser);
     }
 
-    public JwtTokenDto refreshToken(String refreshToken) {
-        String nickname = tokenProvider.getUsernameFromJwt(refreshToken);
-        User dbUser = userRepository.findByNickname(nickname)
-                .orElseThrow(() -> new NoSuchElementException("Пользователь не существует"));
-        return createTokensForUser(dbUser);
-    }
-
     private JwtTokenDto createTokensForUser(User user) {
         if (user.getRole().equals(UserRole.BANNED)) {
             throw new AccessDeniedException("Пользователь заблокирован");
