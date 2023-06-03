@@ -28,19 +28,18 @@ public class User extends EntityWithId {
     @JoinColumn(name = "avatar_id")
     @Nullable
     private Picture avatar;
-    @NotBlank(message = "Enter user nickname")
-    @Size(max = 20, message = "User nickname length must be <= 20 characters")
+    @NotBlank(message = "Введите ваше имя")
+    @Size(max = 20, message = "Длина вашего имени должна быть <= 20 символов")
     @Column(unique = true)
     private String nickname;
-    @NotBlank(message = "Enter your email")
-    @Size(max = 320, message = "Email length must be <= 320 characters")
-    @Email(message = "Not valid email", regexp = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@"
+
+    @Email(message = "Неверная эл. почта", regexp = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@"
             + "[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$")
     @Column(unique = true)
     private String email;
-    @NotBlank(message = "Enter user password hash")
+    @NotBlank(message = "Введите ваш хэш пароля")
     private String passwordHash;
-    @NotNull(message = "Enter user role")
+    @NotNull(message = "Введите роль пользователя")
     private UserRole role;
     @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude

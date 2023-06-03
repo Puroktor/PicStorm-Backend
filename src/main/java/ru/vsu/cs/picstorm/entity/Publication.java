@@ -25,12 +25,12 @@ public class Publication extends EntityWithId {
     @OneToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "picture_id", nullable = false)
     private Picture picture;
-    @NotNull(message = "Enter publication state")
+    @NotNull(message = "Введите статус публикации")
     private PublicationState state;
     /**
      *  Calculated value, added due to performance reasons
      */
-    @NotNull(message = "Enter publication rating")
+    @NotNull(message = "Введите рейтинг публикации")
     @Builder.Default
     private Long rating = 0L;
     @OneToMany(mappedBy = "publication", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)

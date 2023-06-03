@@ -12,15 +12,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserRegistrationDto {
     @NotBlank(message = "Введите ваше имя")
-    @Size(max = 20, message = "Длиина вашего имени должна быть <= 20 символов")
+    @Size(max = 20, message = "Длина вашего имени должна быть <= 20 символов")
     private String nickname;
 
     @NotBlank(message = "Введите ваш пароль")
-    @Size(max = 100, message = "Длиина вашего пароля должна быть <= 100 символов")
+    @Size(max = 100, message = "Длина вашего пароля должна быть <= 100 символов")
     private String password;
 
-    @NotBlank(message = "Введите эл. почту")
-    @Size(max = 320, message = "Длиина вашей эл. почты должна быть <= 320 символов")
     @Email(message = "Неверная эл. почта", regexp = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@"
             + "[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$")
     private String email;
