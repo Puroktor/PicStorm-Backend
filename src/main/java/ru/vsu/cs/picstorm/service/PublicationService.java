@@ -119,7 +119,7 @@ public class PublicationService {
         }
     }
 
-    public PublicationReactionDto setReaction(String userNickname, long publicationId, PublicationReactionDto reactionDto) {
+    public PublicationReactionDto setReaction(String userNickname, long publicationId, ReactionType newReaction) {
         User user = userRepository.findByNickname(userNickname)
                 .orElseThrow(() -> new NoSuchElementException("Пользователь не существует"));
 
@@ -130,7 +130,6 @@ public class PublicationService {
             throw new AccessDeniedException("Вы не можете оценивать эту публикацию");
         }
 
-        ReactionType newReaction = reactionDto.getReaction();
         Optional<Reaction> optionalReaction = reactionRepository.findByPublicationAndUser(publication, user);
         long ratingChange;
         Reaction reaction;

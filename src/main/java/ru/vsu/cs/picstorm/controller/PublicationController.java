@@ -4,11 +4,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,6 +22,7 @@ import ru.vsu.cs.picstorm.dto.request.UserConstraint;
 import ru.vsu.cs.picstorm.dto.response.PageDto;
 import ru.vsu.cs.picstorm.dto.response.PictureDto;
 import ru.vsu.cs.picstorm.dto.response.PublicationInfoDto;
+import ru.vsu.cs.picstorm.entity.ReactionType;
 import ru.vsu.cs.picstorm.service.PublicationService;
 
 import java.util.Optional;
@@ -84,12 +85,12 @@ public class PublicationController {
     @PutMapping("{publicationId}/reaction")
     @PreAuthorize("hasAuthority('REACT_AUTHORITY')")
     public ResponseEntity<PublicationReactionDto> setReaction(@PathVariable long publicationId,
-            @RequestBody @NotNull(message = "Предоставьте свою реакцию") @Valid PublicationReactionDto reactionDto,
+            @Param(value = "reaction") @Parameter(description = "New reaction") ReactionType reactionType,
             @Parameter(hidden = true) Authentication authentication) {
         String userNickname = authentication.getName();
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(publicationService.setReaction(userNickname, publicationId, reactionDto));
+                .body(publicationService.setReaction(userNickname, publicationId, reactionType));
     }
 
     @Operation(summary = "Bans publication")

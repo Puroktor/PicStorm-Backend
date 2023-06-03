@@ -144,7 +144,7 @@ public class PublicationControllerTests {
 
     @Test
     public void setReactionAsUnauthorized() {
-        assertThrows(AuthenticationException.class, () -> publicationController.setReaction(1, new PublicationReactionDto(), authentication));
+        assertThrows(AuthenticationException.class, () -> publicationController.setReaction(1, null, authentication));
         verify(publicationService, times(0)).setReaction(anyString(), anyLong(), any());
     }
 
@@ -153,25 +153,26 @@ public class PublicationControllerTests {
     public void setEmptyReaction() {
         long publicationId = 0;
         PublicationReactionDto reactionDto = new PublicationReactionDto(null);
-        when(publicationService.setReaction(MOCK_USERNAME, publicationId, reactionDto)).thenReturn(reactionDto);
-        ResponseEntity<?> returned = publicationController.setReaction(publicationId, reactionDto, authentication);
+        when(publicationService.setReaction(MOCK_USERNAME, publicationId, null)).thenReturn(reactionDto);
+        ResponseEntity<?> returned = publicationController.setReaction(publicationId, null, authentication);
 
         assertEquals(HttpStatus.OK, returned.getStatusCode());
         assertEquals(reactionDto, returned.getBody());
-        verify(publicationService, times(1)).setReaction(MOCK_USERNAME, publicationId, reactionDto);
+        verify(publicationService, times(1)).setReaction(MOCK_USERNAME, publicationId, null);
     }
 
     @Test
     @WithMockUser(authorities = "REACT_AUTHORITY")
     public void setNewReaction() {
         long publicationId = 0;
-        PublicationReactionDto reactionDto = new PublicationReactionDto(ReactionType.LIKE);
-        when(publicationService.setReaction(MOCK_USERNAME, publicationId, reactionDto)).thenReturn(reactionDto);
-        ResponseEntity<?> returned = publicationController.setReaction(publicationId, reactionDto, authentication);
+        ReactionType reactionType = ReactionType.LIKE;
+        PublicationReactionDto reactionDto = new PublicationReactionDto(reactionType);
+        when(publicationService.setReaction(MOCK_USERNAME, publicationId, reactionType)).thenReturn(reactionDto);
+        ResponseEntity<?> returned = publicationController.setReaction(publicationId, reactionType, authentication);
 
         assertEquals(HttpStatus.OK, returned.getStatusCode());
         assertEquals(reactionDto, returned.getBody());
-        verify(publicationService, times(1)).setReaction(MOCK_USERNAME, publicationId, reactionDto);
+        verify(publicationService, times(1)).setReaction(MOCK_USERNAME, publicationId, reactionType);
     }
 
     @Test

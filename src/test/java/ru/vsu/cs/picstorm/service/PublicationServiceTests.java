@@ -116,7 +116,7 @@ public class PublicationServiceTests {
         Publication publication = Publication.builder().id(publicationId).state(PublicationState.BANNED).build();
         when(userRepository.findByNickname(any())).thenReturn(Optional.of(new User()));
         when(publicationRepository.findById(publicationId)).thenReturn(Optional.of(publication));
-        assertThrows(AccessDeniedException.class, () -> publicationService.setReaction("name", publicationId, new PublicationReactionDto()));
+        assertThrows(AccessDeniedException.class, () -> publicationService.setReaction("name", publicationId, null));
     }
 
     @Test
@@ -125,14 +125,13 @@ public class PublicationServiceTests {
         String nickname = "nickname";
         User user = User.builder().id(1L).build();
         Publication publication = Publication.builder().id(publicationId).state(PublicationState.VISIBLE).rating(0L).build();
-        PublicationReactionDto reactionDto = new PublicationReactionDto(ReactionType.LIKE);
 
         when(userRepository.findByNickname(nickname)).thenReturn(Optional.of(user));
         when(publicationRepository.findById(publicationId)).thenReturn(Optional.of(publication));
         when(reactionRepository.findByPublicationAndUser(publication, user)).thenReturn(Optional.empty());
         when(reactionRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
 
-        publicationService.setReaction(nickname, publicationId, reactionDto);
+        publicationService.setReaction(nickname, publicationId, ReactionType.LIKE);
 
         verify(reactionRepository, times(1)).save(any());
         verify(publicationRepository, times(1)).save(argThat(publ -> {
@@ -155,7 +154,7 @@ public class PublicationServiceTests {
         when(reactionRepository.findByPublicationAndUser(publication, user)).thenReturn(Optional.of(oldReaction));
         when(reactionRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
 
-        publicationService.setReaction(nickname, publicationId, reactionDto);
+        publicationService.setReaction(nickname, publicationId, null);
 
         verify(reactionRepository, times(1)).save(any());
         verify(publicationRepository, times(1)).save(argThat(publ -> {
@@ -171,7 +170,6 @@ public class PublicationServiceTests {
         String nickname = "nickname";
         User user = User.builder().id(1L).build();
         Publication publication = Publication.builder().id(publicationId).state(PublicationState.VISIBLE).rating(1L).build();
-        PublicationReactionDto reactionDto = new PublicationReactionDto(ReactionType.DISLIKE);
         Reaction reaction = new Reaction(1L, ReactionType.LIKE, publication, user, Instant.now());
 
         when(userRepository.findByNickname(nickname)).thenReturn(Optional.of(user));
@@ -179,7 +177,7 @@ public class PublicationServiceTests {
         when(reactionRepository.findByPublicationAndUser(publication, user)).thenReturn(Optional.of(reaction));
         when(reactionRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
 
-        publicationService.setReaction(nickname, publicationId, reactionDto);
+        publicationService.setReaction(nickname, publicationId, ReactionType.DISLIKE);
 
         verify(reactionRepository, times(1)).save(any());
         verify(publicationRepository, times(1)).save(argThat(publ -> {
