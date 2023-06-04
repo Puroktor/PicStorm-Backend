@@ -32,11 +32,11 @@ public class SubscriptionController {
     @Operation(summary = "Returns user subscribers by id")
     @GetMapping("subscribers/{userId}")
     public ResponseEntity<PageDto<UserLineDto>> getSubscribers(
-            @Parameter(description = "User ID whose subscribers are required") @PathVariable("userId") long userId,
+            @Parameter(description = "User ID whose subscribers are required", example = "23") @PathVariable("userId") long userId,
             @RequestParam("index") @Min(value = 0, message = "Индекс страницы должен быть >=0")
             @Parameter(description = "Index of desired page", example = "1") int index,
             @RequestParam("size") @Min(value = 1, message = "Размер страницы должен быть >=1")
-            @Parameter(description = "Size of pages", example = "1") int size,
+            @Parameter(description = "Size of pages", example = "9") int size,
             @Parameter(hidden = true) Authentication authentication) {
         String viewingUserNickname = Optional.ofNullable(authentication).map(Authentication::getName).orElse(null);
         return ResponseEntity
@@ -47,11 +47,11 @@ public class SubscriptionController {
     @Operation(summary = "Returns user subscriptions by id")
     @GetMapping("subscriptions/{userId}")
     public ResponseEntity<PageDto<UserLineDto>> getSubscriptions(
-            @Parameter(description = "User ID whose subscriptions are required") @PathVariable("userId") long userId,
+            @Parameter(description = "User ID whose subscriptions are required", example = "54") @PathVariable("userId") long userId,
             @RequestParam("index") @Min(value = 0, message = "Индекс страницы должен быть >=0")
-            @Parameter(description = "Index of desired page", example = "1") int index,
+            @Parameter(description = "Index of desired page", example = "3") int index,
             @RequestParam("size") @Min(value = 1, message = "Размер страницы должен быть >=1")
-            @Parameter(description = "Size of pages", example = "1") int size,
+            @Parameter(description = "Size of pages", example = "10") int size,
             @Parameter(hidden = true) Authentication authentication) {
         String viewingUserNickname = Optional.ofNullable(authentication).map(Authentication::getName).orElse(null);
         return ResponseEntity
@@ -63,7 +63,7 @@ public class SubscriptionController {
     @PutMapping("subscription/{userId}")
     @PreAuthorize("hasAuthority('SUBSCRIBE_AUTHORITY')")
     public ResponseEntity<SubscriptionDto> changeSubscription(
-            @Parameter(description = "Target user ID") @PathVariable("userId") long userId,
+            @Parameter(description = "Target user ID", example = "32") @PathVariable("userId") long userId,
             @Parameter(hidden = true) Authentication authentication) {
         String requesterUsername = authentication.getName();
         return ResponseEntity

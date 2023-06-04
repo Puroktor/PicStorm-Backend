@@ -34,6 +34,7 @@ public class UserController {
     @PreAuthorize("hasAuthority('UPLOAD_AUTHORITY')")
     public ResponseEntity<Void> uploadAvatar(
             @RequestBody @NotNull(message = "Предоставьте фото для загурзки")
+            @Parameter(description = "Avatar to upload", example = "ZGFza2tubWwnOyxwW2tsZGZnXGZzZGZzZGFzZGZoYmN2eGJkZmdqdmNmeHpncw==")
             @Size(min = 1, max = MAX_AVATAR_PICTURE_SIZE, message = "Неверный размер фото для загрузки") byte[] uploadPicture,
             @Parameter(hidden = true) Authentication authentication) {
         String userNickname = authentication.getName();
@@ -44,7 +45,7 @@ public class UserController {
     }
     @Operation(summary = "Retrieves user avatar")
     @GetMapping("{userId}/avatar")
-    public ResponseEntity<PictureDto> getAvatar(@Parameter(description = "Avatar owner ID") @PathVariable("userId") long userId) {
+    public ResponseEntity<PictureDto> getAvatar(@Parameter(description = "Avatar owner ID", example = "20") @PathVariable("userId") long userId) {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(userService.getUserAvatar(userId));
@@ -53,12 +54,12 @@ public class UserController {
     @Operation(summary = "Finds users by part of nickname")
     @GetMapping("search")
     public ResponseEntity<PageDto<UserLineDto>> findUsersByNickname(
-            @Parameter(description = "Nickname part for search")
+            @Parameter(description = "Nickname part for search", example = "alex")
             @RequestParam(value = "nickname", required = false) String nickname,
             @RequestParam("index") @Min(value = 0, message = "Индекс страницы должен быть >=0")
-            @Parameter(description = "Index of desired page", example = "1") int index,
+            @Parameter(description = "Index of desired page", example = "2") int index,
             @RequestParam("size") @Min(value = 1, message = "Размер страницы должен быть >=1")
-            @Parameter(description = "Size of pages") int size,
+            @Parameter(description = "Size of pages", example = "4") int size,
             @Parameter(hidden = true) Authentication authentication) {
         String searchingUserNickname = Optional.ofNullable(authentication).map(Authentication::getName).orElse(null);
         return ResponseEntity
@@ -69,7 +70,7 @@ public class UserController {
     @Operation(summary = "Returns user profile info")
     @GetMapping("{userId}/profile")
     public ResponseEntity<UserProfileDto> getUserProfile(
-            @Parameter(description = "User ID whose profile is required") @PathVariable("userId") long userId,
+            @Parameter(description = "User ID whose profile is required", example = "7") @PathVariable("userId") long userId,
             @Parameter(hidden = true) Authentication authentication) {
         String requesterUsername = Optional.ofNullable(authentication).map(Authentication::getName).orElse(null);
         return ResponseEntity
@@ -80,7 +81,7 @@ public class UserController {
     @Operation(summary = "Bans specified user")
     @PutMapping("{userId}/ban")
     @PreAuthorize("hasAuthority('BAN_USER_AUTHORITY')")
-    public ResponseEntity<UserRoleDto> banUser(@Parameter(description = "User ID to be banned") @PathVariable("userId") long userId,
+    public ResponseEntity<UserRoleDto> banUser(@Parameter(description = "User ID to be banned", example = "15") @PathVariable("userId") long userId,
                                                @Parameter(hidden = true) Authentication authentication) {
         String requesterUsername = authentication.getName();
         return ResponseEntity
@@ -93,7 +94,7 @@ public class UserController {
     @PutMapping("{userId}/admin")
     @PreAuthorize("hasAuthority('MANAGE_ADMINS_AUTHORITY')")
     public ResponseEntity<UserRoleDto> changeAdminRole(
-            @Parameter(description = "User ID whose admin role to be changed") @PathVariable("userId") long userId,
+            @Parameter(description = "User ID whose admin role to be changed", example = "20") @PathVariable("userId") long userId,
             @Parameter(hidden = true) Authentication authentication) {
         String requesterUsername = authentication.getName();
         return ResponseEntity
