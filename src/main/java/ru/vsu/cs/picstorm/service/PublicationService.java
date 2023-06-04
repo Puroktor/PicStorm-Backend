@@ -177,7 +177,7 @@ public class PublicationService {
         } catch (Exception e) {
             throw new RuntimeException("Ошибка при удалении фото");
         }
-        pictureRepository.delete(publicationPicture);
         publicationRepository.delete(publication);
+        pictureRepository.delete(publicationPicture);
     }
 }

@@ -8,7 +8,6 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -85,7 +84,7 @@ public class PublicationController {
     @PutMapping("{publicationId}/reaction")
     @PreAuthorize("hasAuthority('REACT_AUTHORITY')")
     public ResponseEntity<PublicationReactionDto> setReaction(@PathVariable long publicationId,
-            @Param(value = "reaction") @Parameter(description = "New reaction") ReactionType reactionType,
+            @RequestParam(value = "reaction", required = false) @Parameter(description = "New reaction") ReactionType reactionType,
             @Parameter(hidden = true) Authentication authentication) {
         String userNickname = authentication.getName();
         return ResponseEntity
