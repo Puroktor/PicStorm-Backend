@@ -8,5 +8,5 @@ RUN mvn -f pom.xml -Dmaven.test.skip clean package
 FROM openjdk:17-jdk-slim
 COPY --from=build /workspace/target/*.jar app.jar
 ENV SPRING_PROFILES_ACTIVE=production
-EXPOSE 8080
+EXPOSE 8443
 ENTRYPOINT ["java","-jar","app.jar"]
