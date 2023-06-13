@@ -1,14 +1,15 @@
 package ru.vsu.cs.picstorm.security;
 
-import com.auth0.jwt.interfaces.JWTVerifier;
-import org.springframework.security.core.GrantedAuthority;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.auth0.jwt.interfaces.JWTVerifier;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import ru.vsu.cs.picstorm.entity.User;
 
@@ -23,6 +24,7 @@ public class JwtTokenProvider {
     private String secretKey;
     @Value("${jwt.access-validity}")
     private long accessValidity;
+    private final UserDetailsService userDetailsService;
 
     public String generateAccessToken(User user) {
         Algorithm algorithm = Algorithm.HMAC256(secretKey);
@@ -38,15 +40,11 @@ public class JwtTokenProvider {
     public UsernamePasswordAuthenticationToken getAuthTokenFromJwt(String jwtToken) {
         DecodedJWT decodedJWT = decodeJWT(jwtToken);
         String username = decodedJWT.getSubject();
+        userDetailsService.loadUserByUsername(username);
         List<String> list = decodedJWT.getClaim("authorities").asList(String.class);
         List<SimpleGrantedAuthority> authorities = list.stream().map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
         return new UsernamePasswordAuthenticationToken(username, null, authorities);
-    }
-
-    public String getUsernameFromJwt(String jwtToken) {
-        DecodedJWT decodedJWT = decodeJWT(jwtToken);
-        return decodedJWT.getSubject();
     }
 
     private DecodedJWT decodeJWT(String jwtToken) {

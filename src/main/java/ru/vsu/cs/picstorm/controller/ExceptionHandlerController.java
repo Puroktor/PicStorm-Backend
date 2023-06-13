@@ -49,7 +49,7 @@ public class ExceptionHandlerController {
     }
 
     @ExceptionHandler(JWTVerificationException.class)
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    @ResponseStatus(value = HttpStatus.FORBIDDEN)
     public ErrorDto handleJWTVerificationException(JWTVerificationException e) {
         return new ErrorDto(e.getMessage());
     }
@@ -57,7 +57,7 @@ public class ExceptionHandlerController {
     @ExceptionHandler(AuthenticationException.class)
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
     public ErrorDto handleAuthenticationException(AuthenticationException e) {
-        return new ErrorDto(e.getMessage());
+        return new ErrorDto("Неверное имя или пароль");
     }
 
     @ExceptionHandler(AccessDeniedException.class)
